@@ -2,3 +2,7 @@ Putty install: https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html, f
 Unbuntu version 18.04.06
 Jetson nano (insert model number)
 intel realsense d405
+how to connect to the jetson nano:
+open putty, open device manager find the port under ports com and lpt
+set the connection type to serial, and change the serial line to whatever you found in device manager and change speed to 11520
+then login: "herbie" (username), "mars2021" (password) for the loose nano.
