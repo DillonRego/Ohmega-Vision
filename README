@@ -6,3 +6,9 @@ how to connect to the jetson nano:
 open putty, open device manager find the port under ports com and lpt
 set the connection type to serial, and change the serial line to whatever you found in device manager and change speed to 11520
 then login: "herbie" (username), "mars2021" (password) for the loose nano.
+
+ssh into Jetson nano
+ssh herbie@192.168.137.76
+
+Transfer files from Jetson Nano to PC
+scp herbie@192.168.137.76 /targetfile /destination
