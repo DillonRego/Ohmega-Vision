@@ -30,8 +30,11 @@
 - Go to Network Connectons -> under wifi click properties -> sharing -> check Allow internet connection settings
 - `~$ ssh herbie@192.168.137.76`
 
-## Transfer files from Jetson Nano to PC
+## Transfer files from Jetson Nano to local PC
 - `~$ scp herbie@192.168.137.76 /targetfile /destination`
+
+## Transfer files from local PC to Jetson Nano
+- `~$ scp /targetfile herbie@192.168.137.76:~/destination`
 
 ## Access RealSense viewer
 - `~$ realsense-viewer`
