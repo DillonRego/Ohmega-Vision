@@ -19,12 +19,12 @@
 ## Jetson nano (insert model number)
 - Intel Realsense d405
 
-## how to connect to the jetson nano:
+## How to connect to the Jetson Nano:
 - Open putty, open device manager find the port under ports com and lpt
 - Set the connection type to serial, and change the serial line to whatever you found in device manager and change speed to 11520
 - Then login: "herbie" (username), "mars2021" (password) for the loose nano.
 
-## ssh into Jetson nano
+## ssh into Jetson Nano
 - Jetson nano must have internet access
 - If passing internet connection throught PC onto nano using an Ethernet cable
 - Go to Network Connectons -> under wifi click properties -> sharing -> check Allow internet connection settings
