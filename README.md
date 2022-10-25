@@ -44,3 +44,4 @@
 
 ## Deep learning canny edge detection in open cv
 - `~$ https://cv-tricks.com/opencv-dnn/edge-detection-hed/
+- https://samuelabiodun.medium.com/edge-detection-techniques-image-processing-with-opencv-450e3ff8c601
