@@ -41,3 +41,6 @@
 
 ## Discrete Fourier Transform example using open cv
 - `~$ https://docs.opencv.org/3.4/d2/de8/group__core__array.html#gadd6cf9baf2b8b704a11b5f04aaf4f39d
+
+## Deep learning canny edge detection in open cv
+- `~$ https://cv-tricks.com/opencv-dnn/edge-detection-hed/
