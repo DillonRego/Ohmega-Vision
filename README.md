@@ -45,3 +45,6 @@
 ## Deep learning canny edge detection in open cv
 - `~$ https://cv-tricks.com/opencv-dnn/edge-detection-hed/
 - https://samuelabiodun.medium.com/edge-detection-techniques-image-processing-with-opencv-450e3ff8c601
+
+## Training YOLOv5
+-https://colab.research.google.com/github/roboflow-ai/yolov5-custom-training-tutorial/blob/main/yolov5-custom-training.ipynb#scrollTo=R2wGvjd4Z_92
