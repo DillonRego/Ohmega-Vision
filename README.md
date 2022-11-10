@@ -52,6 +52,6 @@
 ## CUDA
 -https://learnopencv.com/getting-started-opencv-cuda-module/
 
-##DATASET
+## DATASET
 -https://universe.roboflow.com/tup/pvc-with-coupling
 
