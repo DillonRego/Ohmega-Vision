@@ -30,8 +30,32 @@
 - Go to Network Connectons -> under wifi click properties -> sharing -> check Allow internet connection settings
 - `~$ ssh herbie@192.168.137.76`
 
-## Transfer files from Jetson Nano to PC
-- `~$ scp herbie@192.168.137.76 /targetfile /destination`
+## Transfer files from Jetson Nano to local PC
+- `~$ scp herbie@192.168.137.76:/targetfile /destination`
+
+## Transfer files from local PC to Jetson Nano
+- `~$ scp /targetfile herbie@192.168.137.76:~/destination`
 
 ## Access RealSense viewer
 - `~$ realsense-viewer`
+
+## Discrete Fourier Transform example using open cv
+- https://docs.opencv.org/3.4/d2/de8/group__core__array.html#gadd6cf9baf2b8b704a11b5f04aaf4f39d
+
+## Deep learning canny edge detection in open cv
+- $ https://cv-tricks.com/opencv-dnn/edge-detection-hed/
+- https://samuelabiodun.medium.com/edge-detection-techniques-image-processing-with-opencv-450e3ff8c601
+
+## Training YOLOv5
+- https://colab.research.google.com/github/roboflow-ai/yolov5-custom-training-tutorial/blob/main/yolov5-custom-training.ipynb#scrollTo=R2wGvjd4Z_92
+
+## CUDA
+- https://learnopencv.com/getting-started-opencv-cuda-module/
+
+## DATASET
+- https://universe.roboflow.com/tup/pvc-with-coupling
+
+## Yolov5 link
+- https://github.com/ultralytics/yolov5
+
+
