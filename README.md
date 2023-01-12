@@ -29,6 +29,7 @@
 - If passing internet connection throught PC onto nano using an Ethernet cable
 - Go to Network Connectons -> under wifi click properties -> sharing -> check Allow internet connection settings
 - `~$ ssh herbie@192.168.137.76`
+- `~$ ssh herbie@192.168.137.224`
 
 ## Transfer files from Jetson Nano to local PC
 - `~$ scp herbie@192.168.137.76:/targetfile /destination`
