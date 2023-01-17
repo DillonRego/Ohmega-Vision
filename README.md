@@ -28,8 +28,17 @@
 - Jetson nano must have internet access
 - If passing internet connection throught PC onto nano using an Ethernet cable
 - Go to Network Connectons -> under wifi click properties -> sharing -> check Allow internet connection settings
+- Jetson Nano 1
 - `~$ ssh herbie@192.168.137.76`
 - `~$ ssh herbie@192.168.137.224`
+- Jetson Nano 2
+- `~$ ssh herbie@192.168.137.239`
+
+## Transfering files with github
+- `git status` to check files that need to be added
+- `git add <files>` to add files
+- `git commit -m 'message'` to commit all files that have been added
+- `git push` to push files to the repo
 
 ## Transfer files from Jetson Nano to local PC
 - `~$ scp herbie@192.168.137.76:/targetfile /destination`
