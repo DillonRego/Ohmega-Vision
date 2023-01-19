@@ -16,7 +16,11 @@
 - First link: https://the.earth.li/~sgtatham/putty/latest/w64/putty-64bit-0.77-installer.msi
 - Unbuntu version 18.04.06
 
-## Jetson nano (insert model number)
+## Jetson nano1 (insert model number)
+- Python 3.8.0
+- Pytorch 1.12.1
+- pyrealsense2 2.51.1
+- cv2 4.6.0
 - Intel Realsense d405
 
 ## How to connect to the Jetson Nano:
