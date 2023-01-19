@@ -4,10 +4,11 @@ import cv2
 import time
 import torch
 import math
+import edge
 
 #MAIN
 
-HEIGHT_OF_CAMERA = 38.3
+HEIGHT_OF_CAMERA = 45.0
 
 # Build Neural Net
 model = torch.hub.load('/home/herbie/OVision2022/pyrealsense/librealsense-2.51.1/build/', 'custom', path='best.pt', source='local')
@@ -39,9 +40,11 @@ try:
         # Apply colormap on depth image (image must be converted to 8-bit per pixel first)
         depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
 
-        image = color_image
+        image = color_image.copy()
         results = model(image)
         results.render()
+        print(image.shape)
+        print(color_image.shape)
         if len(results.xyxy) > 0 and len(results.xyxy[0]) > 0:
             centery = int((results.xyxy[0][0][1] + results.xyxy[0][0][3])/2)
             centerx = int((results.xyxy[0][0][0] + results.xyxy[0][0][2])/2)
@@ -59,13 +62,16 @@ try:
                 xdist = (results.xyxy[0][0][0] - results.xyxy[0][0][2])
                 ydist = (results.xyxy[0][0][1] - results.xyxy[0][0][3])
                 ratio = xdist / ydist
-                if (ratio > 1.5):
-                    orient = "Orientation: horizontal"
-                elif (ratio < 1):
-                    orient = "Orientation: vertical"
+                if (ratio > 3):
+                    orient = "Orientation: 90.00"
+                elif (ratio < .55):
+                    orient = "Orientation: 0.00"
                 else:
-                    orient = "Orientation: unknown"
-                
+                    print("EDGE!! \n")
+                    print(results.xyxy[0][0])
+                    orient = "Orientation: " + str(round(edge.get_degrees((int(results.xyxy[0][0][0]), int(results.xyxy[0][0][1])), (int(results.xyxy[0][0][2]), int(results.xyxy[0][0][3])), (centerx, centery), color_image), 2))
+                    
+                print("Ratio: " + str(ratio) + "\n")
                 cv2.putText(results.ims[0],
                         "X-Coord: " + str(round(real_x, 2)),
                         (10, 410),
@@ -96,7 +102,6 @@ try:
                         (0, 0, 255),
                         1)       
                 #print("\nreal coords:", real_x, real_y, depth, "\n\n")
-
                 cv2.circle(results.ims[0], (centerx, centery), 5, (0,0,255), 2)
                 
                 #print("x coordinate: " + str((centerx - 320) * depth_frame.get_distance(centerx, centery) /386))
