@@ -57,7 +57,10 @@
 - https://samuelabiodun.medium.com/edge-detection-techniques-image-processing-with-opencv-450e3ff8c601
 
 ## Training YOLOv5
+Generic:
 -https://colab.research.google.com/github/roboflow-ai/notebooks/blob/main/notebooks/train-yolov5-object-detection-on-custom-data.ipynb
+Specific:
+-https://colab.research.google.com/drive/1RsylzAtXrJbDWdYRYt_aUFyMfdyvIyKN#scrollTo=1NcFxRcFdJ_O
 
 ## CUDA
 - https://learnopencv.com/getting-started-opencv-cuda-module/
