@@ -74,6 +74,8 @@ Specific:
 
 ## Yolov5 link
 - https://github.com/ultralytics/yolov5
+## Jetson GPIO
+-https://github.com/NVIDIA/jetson-gpio
 
 
 
