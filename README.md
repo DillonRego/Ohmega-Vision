@@ -76,6 +76,8 @@ Specific:
 - https://github.com/ultralytics/yolov5
 ## Jetson GPIO
 -https://github.com/NVIDIA/jetson-gpio
+-https://github.com/sparkfun/Qwiic_Py
+
 
 
 
