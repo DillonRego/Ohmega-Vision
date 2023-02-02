@@ -16,7 +16,11 @@
 - First link: https://the.earth.li/~sgtatham/putty/latest/w64/putty-64bit-0.77-installer.msi
 - Unbuntu version 18.04.06
 
-## Jetson nano (insert model number)
+## Jetson nano1 (insert model number)
+- Python 3.8.0
+- Pytorch 1.12.1
+- pyrealsense2 2.51.1
+- cv2 4.6.0
 - Intel Realsense d405
 
 ## How to connect to the Jetson Nano:
@@ -28,7 +32,17 @@
 - Jetson nano must have internet access
 - If passing internet connection throught PC onto nano using an Ethernet cable
 - Go to Network Connectons -> under wifi click properties -> sharing -> check Allow internet connection settings
+- Jetson Nano 1
 - `~$ ssh herbie@192.168.137.76`
+- `~$ ssh herbie@192.168.137.224`
+- Jetson Nano 2
+- `~$ ssh herbie@192.168.137.239`
+
+## Transfering files with github
+- `git status` to check files that need to be added
+- `git add <files>` to add files
+- `git commit -m 'message'` to commit all files that have been added
+- `git push` to push files to the repo
 
 ## Transfer files from Jetson Nano to local PC
 - `~$ scp herbie@192.168.137.76:/targetfile /destination`
@@ -40,11 +54,31 @@
 - `~$ realsense-viewer`
 
 ## Discrete Fourier Transform example using open cv
-- `~$ https://docs.opencv.org/3.4/d2/de8/group__core__array.html#gadd6cf9baf2b8b704a11b5f04aaf4f39d
+- https://docs.opencv.org/3.4/d2/de8/group__core__array.html#gadd6cf9baf2b8b704a11b5f04aaf4f39d
 
 ## Deep learning canny edge detection in open cv
-- `~$ https://cv-tricks.com/opencv-dnn/edge-detection-hed/
+- $ https://cv-tricks.com/opencv-dnn/edge-detection-hed/
 - https://samuelabiodun.medium.com/edge-detection-techniques-image-processing-with-opencv-450e3ff8c601
 
 ## Training YOLOv5
--https://colab.research.google.com/github/roboflow-ai/yolov5-custom-training-tutorial/blob/main/yolov5-custom-training.ipynb#scrollTo=R2wGvjd4Z_92
+Generic:
+-https://colab.research.google.com/github/roboflow-ai/notebooks/blob/main/notebooks/train-yolov5-object-detection-on-custom-data.ipynb
+Specific:
+-https://colab.research.google.com/drive/1RsylzAtXrJbDWdYRYt_aUFyMfdyvIyKN#scrollTo=1NcFxRcFdJ_O
+
+## CUDA
+- https://learnopencv.com/getting-started-opencv-cuda-module/
+
+## DATASET
+- https://universe.roboflow.com/tup/pvc-with-coupling
+
+## Yolov5 link
+- https://github.com/ultralytics/yolov5
+## Jetson GPIO
+-https://github.com/NVIDIA/jetson-gpio
+-https://github.com/sparkfun/Qwiic_Py
+
+
+
+
+
