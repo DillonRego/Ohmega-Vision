@@ -96,8 +96,8 @@ class Nano_I2CBus:
         Default device address for Jetson is 
         Default device for I2C on Pi is 
         '''
-        self.target = target # I2C address of the target (Jetson)
-        self.dev = dev       # I2C bus being used on Pi
+        self.target = target # I2C adress of the target(Pi) being used on Pi
+        self.dev = dev       # I2C bus being used on the Jetson 
         self.bus = pylibi2c.I2CDevice(self.dev, self.target)
 
     def write_pkt(self, pkt):
@@ -130,7 +130,7 @@ class Nano_I2CBus:
 
     def read_pkt(self, size: int = blocksize):
         '''
-        Reads the message sent from Jetson's I2C.
+        Reads the message sent from Pi's I2C.
 
         size limited to 256 bytes.
         '''
