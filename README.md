@@ -82,7 +82,7 @@ Specific:
 -as of right now we are using I2C 1 on the Jetson (pins 27,28 and gnd)
 -pins 3,5, 6 on the Raspberry pi
 
-
+Look into this https://github.com/amaork/libi2c/blob/master/src/pyi2c.c
 
 
 
