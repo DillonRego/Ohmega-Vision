@@ -89,7 +89,7 @@ class Nano_I2CBus:
     pkt_self_id: str = 'J'           # This system's packet ID
     pkt_targ_id: str = 'P'           # The target packet ID (RPi)
 
-    def __init__(self, target = 0x64, dev = '/dev/i2c-1'):
+    def __init__(self, target = 0x64, dev = '/dev/i2c-0'):
         '''
         Initializes the bus using the imported library.
         
