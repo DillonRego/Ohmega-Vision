@@ -78,6 +78,10 @@ Specific:
 -https://github.com/NVIDIA/jetson-gpio
 -https://github.com/sparkfun/Qwiic_Py
 
+## I2C Pins
+-as of right now we are using I2C 1 on the Jetson (pins 27,28 and gnd)
+-pins 3,5, 6 on the Raspberry pi
+
 
 
 
