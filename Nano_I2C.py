@@ -1,8 +1,11 @@
 
+
+
 import os
 import time
 import typing
 import struct
+import pylibi2c
 
 class I2CPacket:
     '''
@@ -73,95 +76,104 @@ class I2CPacket:
 
         # Calculate checksum
         calculated = sum(pkt_array)
+        return calculated == provided
 
-        # Return True if matching, False otherwise
-        if calculated == provided:
-            return True
-        else:
-            return False
-
-class Nano_I2C:
+class Nano_I2CBus:
     '''
-    Monitor program for the Nvidia Jetson.
-    Acts as an interface for the I2C communication buffer.
-    Programs that desire to communicate with the Pi controller
-    need to request writes through here. The monitor
-    program ensures there are no outstanding
-    messages from the controller and writes said data
-    to the buffer, or performs needed actions if
-    commands from the Pi are in the buffer.
+    I2C bus object for the Jetson to communicate with the Raspberry Pi.
     '''
-
-    buf: str = '/sys/bus/i2c/devices/0-0064/slave-eeprom'
-    blocksize: int = 256
-    timewait: float = 0.2 # Time delay to help with data transmission
     
+    blocksize: int = 256    # Max bytes capable of sending
+    timewait: float = 0.2
+
     pkt_self_id: str = 'J'           # This system's packet ID
     pkt_targ_id: str = 'P'           # The target packet ID (RPi)
 
-    def __init__(self):
-        self.log = open('logfile', 'w')
-        self.vision = False
-        print('Monitor program running')
+    def __init__(self, target = 0x64, dev = '/dev/i2c-1'):
+        '''
+        Initializes the bus using the imported library.
+        
+        Default device address for Jetson is 
+        Default device for I2C on Pi is 
+        '''
+        self.target = target # I2C address of the target (Jetson)
+        self.dev = dev       # I2C bus being used on Pi
+        self.bus = pylibi2c.I2CDevice(self.dev, self.target)
 
     def write_pkt(self, pkt):
         '''
-        Handles all writes to the eeprom buffer. Turns incoming data to bytes
-        datatype for writing.
-        Data can be of the type str, bytes, or a number
+        Takes a string, converts it to bytes to send across I2C to the 
+        specified target.
+
+        msg limited to 256 bytes.
+
+        Returns number bytes sent
         '''
-        # If the data is already in bytes, do nothing
-        if type(data) == bytes:
+        # If pkt is already in bytes, do nothing
+        if type(pkt) == bytes:
             pass
 
         # Otherwise if the data is a string, encode it with UTF-8
-        elif type(data) == str:
-            data = data.encode(encoding='UTF-8', errors='replace')
+        elif type(pkt) == str:
+            pkt = pkt.encode(encoding='UTF-8', errors='replace')
 
         # Otherwise try to convert it to a bytes object
         else:
             try:
-                data = bytes(data)
+                pkt = bytes(pkt)
 
             # If this fails, return false
             except:
                 return False
 
-        with open(self.buf, 'wb') as buf:
-            buf.write(data)
+        return self.bus.write(0x0, pkt)
 
-        # Return true to let caller know write was successful
-        return True
-    
-    def read_pkt(self):
+    def read_pkt(self, size: int = blocksize):
         '''
-        Reads from the eeprom buffer. 
-        Returns the data as a bytes object. 
+        Reads the message sent from Jetson's I2C.
+
+        size limited to 256 bytes.
         '''
-        # Open buffer and return first 256 bytes
-        with open(self.buf, 'rb') as buf:
-            return buf.read(self.blocksize)
-   
+        # If size is too big, throw an exception
+        if size > self.blocksize:
+            raise ValueError
+        
+        # Read requested size, return bytes object
+        return self.bus.read(0x0, size)
+
+
 def main():
-    bus = 1 # bus number 
-    address = 0x50 # device address
+    # Initialize the I2C bus
+    i2c = Nano_I2CBus()
 
-    i2c = Nano_I2C(bus, address) # bus number and device address might need to change
-
-    # Test write and read byte
-    value = 0x42
-    i2c.write_byte(value)
-    read_value = i2c.read_byte()
-    print("Received value: 0x{:02X}".format(read_value))
-
+    # creating packet content
+    data = b'Hello World!'
+    size = len(data)
+    status = 'S'
+    sequence = 12345
+    ID = 'J'
+    
     # Test writing a packet
-    task = "Sen"
-    success = 0x01
-    data = bytearray(245)
-    packet = I2CPacket.create_packet(task, success, data)
-    register = 0x00
-    i2c.write_packet(register, packet)
-   
+    pkt = I2CPacket.create_pkt(data, size, status, sequence, ID)
+    bytes_sent = i2c.write_pkt(pkt)
+    
+    if bytes_sent == False:
+        print('Packet creation failed!')
+    else:
+        print(f'{bytes_sent} bytes sent!')
+    
     # Test reading a packet
-    task, success, data = i2c.read_packet(register)
-    print("Read task: {}, success: {}, data: {}".format(task, success, data))
+    data_received = i2c.read_pkt()
+    if len(data_received) == 0:
+        print('No data received!')
+    else:
+        # Verify the received packet
+        if I2CPacket.verify_pkt(data_received) == False:
+            print('Packet corrupted!')
+        else:
+            # Unpack the received packet
+            unpacked = I2CPacket.parse_pkt(data_received)
+            print(f'Data received: {unpacked[0].decode()}')
+
+if __name__ == '__main__':
+    main()
