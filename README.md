@@ -84,5 +84,6 @@ Specific:
 
 Look into this https://github.com/amaork/libi2c/blob/master/src/pyi2c.c
 
+https://docs.nvidia.com/jetson/archives/r34.1/DeveloperGuide/index.html#page/Tegra%2520Linux%2520Driver%2520Package%2520Development%2520Guide%2Fkernel_custom.html%23
 
 
