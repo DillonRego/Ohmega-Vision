@@ -77,7 +77,7 @@ class I2CPacket:
 
 class Nano_I2CBus:
     '''
-    I2C bus object for the Jetson to communicate with the Raspberry Pi.
+    I2C bus object for the Jetson to act as a slave device and communicate with the Raspberry Pi.
     '''
     
     blocksize: int = 256    # Max bytes capable of sending
@@ -87,11 +87,11 @@ class Nano_I2CBus:
     pkt_targ_id: str = 'P'           # The target packet ID (RPi)
 
     def __init__(self, target = 0x64, dev = '/dev/i2c-0'):
-        '''
+         '''
         Initializes the bus using the imported library.
         
-        Default device address for Jetson is 
-        Default device for I2C on Pi is 
+        Default device address for Jetson is 0x64
+        Default device for I2C on Pi is /dev/i2c-0
         '''
         self.target = target # I2C adress of the target(Pi) being used on Pi
         self.dev = dev       # I2C bus being used on the Jetson 
@@ -151,26 +151,30 @@ def main():
     ID = 'J'
     
     # Test writing a packet
-    pkt = I2CPacket.create_pkt(data, size, status, sequence, ID)
-    bytes_sent = i2c.write_pkt(pkt)
+    # pkt = I2CPacket.create_pkt(data, size, status, sequence, ID)
+    # bytes_sent = i2c.write_pkt(pkt)
     
-    if bytes_sent == False:
-        print('Packet creation failed!')
-    else:
-        print(f'{bytes_sent} bytes sent!')
+    # if bytes_sent == False:
+    #   print('Packet creation failed!')
+    # else:
+    #    print(f'{bytes_sent} bytes sent!')
     
     # Test reading a packet
-    data_received = i2c.read_pkt()
-    if len(data_received) == 0:
-        print('No data received!')
-    else:
-        # Verify the received packet
-        if I2CPacket.verify_pkt(data_received) == False:
-            print('Packet corrupted!')
+    while True:
+        data_received = i2c.read_pkt()
+        
+        if len(data_received) == 0:
+            print('No data received!')
         else:
-            # Unpack the received packet
-            unpacked = I2CPacket.parse_pkt(data_received)
-            print(f'Data received: {unpacked[0].decode()}')
+            # Verify the received packet
+            if I2CPacket.verify_pkt(data_received) == False:
+                print('Packet corrupted!')
+            else:
+                # Unpack the received packet
+                unpacked = I2CPacket.parse_pkt(data_received)
+                print(f'Data received: {unpacked[0].decode()}')
+                
+        time.sleep(i2c.timewait)
 
 if __name__ == '__main__':
     main()
