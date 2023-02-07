@@ -123,7 +123,7 @@ class Nano_I2CBus:
             except:
                 return False
 
-        return self.bus.write(0x0, pkt)
+        return self.bus.write(pkt)
 
     def read_pkt(self, size: int = blocksize):
         '''
@@ -136,7 +136,7 @@ class Nano_I2CBus:
             raise ValueError
         
         # Read requested size, return bytes object
-        return self.bus.read(0x0, size)
+        return self.bus.read(size)
 
 
 def main():
