@@ -1,11 +1,8 @@
-
-
-
 import os
 import time
 import typing
 import struct
-import pylibi2c
+from pylibi2c import I2C_Device, I2C_SLAVE
 
 class I2CPacket:
     '''
@@ -98,7 +95,7 @@ class Nano_I2CBus:
         '''
         self.target = target # I2C adress of the target(Pi) being used on Pi
         self.dev = dev       # I2C bus being used on the Jetson 
-        self.bus = pylibi2c.I2CDevice(self.dev, self.target)
+        self.bus = I2C_Device(I2C_SLAVE, self.dev, self.target)
 
     def write_pkt(self, pkt):
         '''
