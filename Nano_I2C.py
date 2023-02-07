@@ -77,25 +77,32 @@ class I2CPacket:
 
 class Nano_I2CBus:
     '''
-    I2C bus object for the Jetson to act as a slave device and communicate with the Raspberry Pi.
+    Monitor program for the Nvidia Jetson.
+    Acts as an interface for the I2C communication buffer.
+    Programs that desire to communicate with the Pi controller
+    need to request writes through here. The monitor
+    program ensures there are no outstanding
+    messages from the controller and writes said data
+    to the buffer, or performs needed actions if
+    commands from the Pi are in the buffer.
     '''
-    
-    blocksize: int = 256    # Max bytes capable of sending
-    timewait: float = 0.2
 
+    buf: str = '/sys/bus/i2c/devices/0-0064/slave-eeprom'
+    blocksize: int = 256
+    timewait: float = 0.2 # Time delay to help with data transmission
+    
     pkt_self_id: str = 'J'           # This system's packet ID
     pkt_targ_id: str = 'P'           # The target packet ID (RPi)
 
-    def __init__(self, target = 0x64, dev = '/dev/i2c-0'):
-         '''
-        Initializes the bus using the imported library.
-        
-        Default device address for Jetson is 0x64
-        Default device for I2C on Pi is /dev/i2c-0
-        '''
-        self.target = target # I2C adress of the target(Pi) being used on Pi
-        self.dev = dev       # I2C bus being used on the Jetson 
-        self.bus = I2C_Device(I2C_SLAVE, self.dev, self.target)
+    def __init__(self):
+        self.log = open('logfile', 'w')
+        self.vision = False
+        print('Monitor program running')
+
+    def write_log(self, msg: str):
+        date = time.asctime()
+
+        self.log.write(date + ': ' + msg + '\n')
 
     def write_pkt(self, pkt):
         '''
@@ -123,20 +130,17 @@ class Nano_I2CBus:
             except:
                 return False
 
-        return self.bus.write(pkt)
+        with open(self.buf, 'wb') as buf:
+            return buf.write(pkt)
 
     def read_pkt(self, size: int = blocksize):
         '''
-        Reads the message sent from Pi's I2C.
-
-        size limited to 256 bytes.
+        Reads from the eeprom buffer. 
+        Returns the data as a bytes object. 
         '''
-        # If size is too big, throw an exception
-        if size > self.blocksize:
-            raise ValueError
-        
-        # Read requested size, return bytes object
-        return self.bus.read(size)
+        # Open buffer and return first 256 bytes
+        with open(self.buf, 'rb') as buf:
+            return buf.read(self.blocksize)
 
 
 def main():
