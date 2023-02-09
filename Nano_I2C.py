@@ -2,7 +2,6 @@ import os
 import time
 import typing
 import struct
-from pylibi2c import I2C_Device, I2C_SLAVE
 
 class I2CPacket:
     '''
@@ -141,44 +140,76 @@ class Nano_I2CBus:
         # Open buffer and return first 256 bytes
         with open(self.buf, 'rb') as buf:
             return buf.read(self.blocksize)
+        
+    def system_task(self):
+        '''
+        Checks inside the buffer to see if has anything written inside.
+        Specifically we are checking for any keywords that do system-type tasks
+        such as turning the vision system on or off.
+        '''
+        pkt = self.wait_response()
 
+        if not pkt:
+            return
 
+        # If the packet isn't the target ID (pi) and it isn't a command
+        if (pkt[I2CPacket.id_index].decode() != self.pkt_targ_id) or (pkt[I2CPacket.stat_index] != b'c'):
+            return
+
+        print('Command received:')
+
+        msg = pkt[I2CPacket.data_index].decode().strip('\0')
+
+        print(msg)
+        
+        # To Do: add system commands 
+        # Respond back to Jetson
+        response = 'Jetson Response'.encode()
+        pkt = I2CPacket.create_pkt(response, len(response), 't',
+                       pkt[I2CPacket.seq_index] + 1, self.pkt_self_id)
+        self.write_pkt(pkt)
+        
+    
+    def wait_response(self):
+        '''
+        Blocks for one second or until the target responds
+        Returns resulting packet, if valid packet is received
+        Returns false otherwise
+        '''
+        # Timeout in 1 second
+        timeout = time.time() + 3
+
+        # Continuously check the Pi for its response
+        while timeout > time.time():
+            
+            # Get the packet from the Pi and Parse
+            data = self.read_pkt()
+            pkt = I2CPacket.parse_pkt(data)
+
+            # Grab sender ID to know if transmission was complete
+            sender = pkt[I2CPacket.id_index].decode(errors='ignore')
+
+            # If the sender ID is not ourselves, we received a transmission
+            if sender != self.pkt_self_id:             
+
+                # Check its integrity (checksum)
+                if I2CPacket.verify_pkt(data):
+                    return pkt
+                else:
+                    # If invalid, send an error message so pi resends it
+                    print('Requesting new packet (invalid)')
+                    self.write_pkt(b'', 'e', 0)
+        
+        # If timeout occurs, return false
+        self.write_log('Timeout occured. Returning false.')
+        return False
+    
 def main():
     # Initialize the I2C bus
     i2c = Nano_I2CBus()
 
-    # creating packet content
-    data = b'Hello World!'
-    size = len(data)
-    status = 'S'
-    sequence = 12345
-    ID = 'J'
-    
-    # Test writing a packet
-    # pkt = I2CPacket.create_pkt(data, size, status, sequence, ID)
-    # bytes_sent = i2c.write_pkt(pkt)
-    
-    # if bytes_sent == False:
-    #   print('Packet creation failed!')
-    # else:
-    #    print(f'{bytes_sent} bytes sent!')
-    
-    # Test reading a packet
     while True:
-        data_received = i2c.read_pkt()
-        
-        if len(data_received) == 0:
-            print('No data received!')
-        else:
-            # Verify the received packet
-            if I2CPacket.verify_pkt(data_received) == False:
-                print('Packet corrupted!')
-            else:
-                # Unpack the received packet
-                unpacked = I2CPacket.parse_pkt(data_received)
-                print(f'Data received: {unpacked[0].decode()}')
-                
-        time.sleep(i2c.timewait)
+        i2c.system_task()
 
 if __name__ == '__main__':
     main()
