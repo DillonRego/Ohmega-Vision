@@ -37,6 +37,7 @@
 - `~$ ssh herbie@192.168.137.224`
 - Jetson Nano 2
 - `~$ ssh herbie@192.168.137.239`
+- `~$ ssh herbie@192.168.137.51`
 
 ## Transfering files with github
 - `git status` to check files that need to be added
