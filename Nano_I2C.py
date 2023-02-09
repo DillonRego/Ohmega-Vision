@@ -26,10 +26,10 @@ class I2CPacket:
     seq_index: int = 4
     id_index: int = 5
 
-    def create_pkt(data: bytes, size: int, status: str, 
+    def create_pkt(data: bytes, size: int, status: str,
                    sequence: int, ID: str):
         '''
-        Builds a packet containing the specified data. Adds in checksum. 
+        Builds a packet containing the specified data. Adds in checksum.
         Returns bytes object for writing.
         '''
         # Check lengths of input. Return false if packing cannot be done
@@ -37,7 +37,7 @@ class I2CPacket:
             return False
 
         # Create packet with zero checksum for calculation
-        pkt_array = bytearray(struct.pack(I2CPacket.struct_format, 
+        pkt_array = bytearray(struct.pack(I2CPacket.struct_format,
                                 data, size, status[:1].encode(),
                                           0, sequence, ID[:1].encode()))
 
@@ -46,7 +46,7 @@ class I2CPacket:
 
         # Convert to bytes object and return it
         pkt = bytes(pkt_array)
-        
+
         return pkt
 
     def parse_pkt(pkt: bytes):
@@ -57,7 +57,7 @@ class I2CPacket:
 
     def verify_pkt(pkt: bytes):
         '''
-        Given a packet, calculates checksum, checks with provided checksum of 
+        Given a packet, calculates checksum, checks with provided checksum of
         packet.
         Returns True if they match, False if they do not.
         '''
@@ -89,7 +89,7 @@ class Nano_I2CBus:
     buf: str = '/sys/bus/i2c/devices/0-0064/slave-eeprom'
     blocksize: int = 256
     timewait: float = 0.2 # Time delay to help with data transmission
-    
+
     pkt_self_id: str = 'J'           # This system's packet ID
     pkt_targ_id: str = 'P'           # The target packet ID (RPi)
 
@@ -105,7 +105,7 @@ class Nano_I2CBus:
 
     def write_pkt(self, pkt):
         '''
-        Takes a string, converts it to bytes to send across I2C to the 
+        Takes a string, converts it to bytes to send across I2C to the
         specified target.
 
         msg limited to 256 bytes.
@@ -134,13 +134,13 @@ class Nano_I2CBus:
 
     def read_pkt(self, size: int = blocksize):
         '''
-        Reads from the eeprom buffer. 
-        Returns the data as a bytes object. 
+        Reads from the eeprom buffer.
+        Returns the data as a bytes object.
         '''
         # Open buffer and return first 256 bytes
         with open(self.buf, 'rb') as buf:
             return buf.read(self.blocksize)
-        
+
     def system_task(self):
         '''
         Checks inside the buffer to see if has anything written inside.
@@ -161,15 +161,15 @@ class Nano_I2CBus:
         msg = pkt[I2CPacket.data_index].decode().strip('\0')
 
         print(msg)
-        
-        # To Do: add system commands 
+
+        # To Do: add system commands
         # Respond back to Jetson
         response = 'Jetson Response'.encode()
-        pkt = I2CPacket.create_pkt(response, len(response), 't',
-                       pkt[I2CPacket.seq_index] + 1, self.pkt_self_id)
+        pkt = I2CPacket.create_pkt(response, len(response), 'd',
+                pkt[I2CPacket.seq_index] + 1, self.pkt_self_id)
         self.write_pkt(pkt)
-        
-    
+
+
     def wait_response(self):
         '''
         Blocks for one second or until the target responds
@@ -181,7 +181,7 @@ class Nano_I2CBus:
 
         # Continuously check the Pi for its response
         while timeout > time.time():
-            
+
             # Get the packet from the Pi and Parse
             data = self.read_pkt()
             pkt = I2CPacket.parse_pkt(data)
@@ -190,7 +190,7 @@ class Nano_I2CBus:
             sender = pkt[I2CPacket.id_index].decode(errors='ignore')
 
             # If the sender ID is not ourselves, we received a transmission
-            if sender != self.pkt_self_id:             
+            if sender != self.pkt_self_id:
 
                 # Check its integrity (checksum)
                 if I2CPacket.verify_pkt(data):
@@ -198,12 +198,12 @@ class Nano_I2CBus:
                 else:
                     # If invalid, send an error message so pi resends it
                     print('Requesting new packet (invalid)')
-                    self.write_pkt(b'', 'e', 0)
-        
+                    self.write_pkt(b'',0, 'e', 0, self.pkt_self_id)
+
         # If timeout occurs, return false
         self.write_log('Timeout occured. Returning false.')
         return False
-    
+
 def main():
     # Initialize the I2C bus
     i2c = Nano_I2CBus()
