@@ -165,20 +165,19 @@ class Nano_I2CBus:
         # To Do: add system commands
         # Respond back to Jetson
         
-        match data:
-            case 'cord':
+        if data == 'cord':
                 response = 'xyza'.encode()
                 pkt = I2CPacket.create_pkt(response, len(response), 'd', 
                                            pkt[I2CPacket.seq_index] + 1, self.pkt_self_id)
                 self.write_pkt(pkt)
                 
-            case 'img':
+        elif data ==  'picture':
                 response = 'Picture'.encode()
                 pkt = I2CPacket.create_pkt(response, len(response), 'd', 
                                            pkt[I2CPacket.seq_index] + 1, self.pkt_self_id)
                 self.write_pkt(pkt)
                 
-            case default:
+        else:
                 response = 'Command not recognized'.encode()
                 pkt = I2CPacket.create_pkt(response, len(response), 'd', 
                                            pkt[I2CPacket.seq_index] + 1, self.pkt_self_id)
@@ -213,7 +212,8 @@ class Nano_I2CBus:
                 else:
                     # If invalid, send an error message so pi resends it
                     print('Requesting new packet (invalid)')
-                    self.write_pkt(b'',0, 'e', 0, self.pkt_self_id)
+                    pkt = I2CPacket.create_pkt(b'',0, 'e', 0, self.pkt_self_id)
+                    self.write_pkt(pkt)
 
         # If timeout occurs, return false
         self.write_log('Timeout occured. Returning false.')
