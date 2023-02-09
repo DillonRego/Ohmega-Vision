@@ -96,7 +96,7 @@ class Nano_I2CBus:
     def __init__(self):
         self.log = open('logfile', 'w')
         self.vision = False
-        print('Monitor program running')
+        print('Nano I2C Ready')
 
     def write_log(self, msg: str):
         date = time.asctime()
@@ -158,16 +158,31 @@ class Nano_I2CBus:
 
         print('Command received:')
 
-        msg = pkt[I2CPacket.data_index].decode().strip('\0')
+        data = pkt[I2CPacket.data_index].decode().strip('\0')
 
-        print(msg)
+        print(data)
 
         # To Do: add system commands
         # Respond back to Jetson
-        response = 'Jetson Response'.encode()
-        pkt = I2CPacket.create_pkt(response, len(response), 'd',
-                pkt[I2CPacket.seq_index] + 1, self.pkt_self_id)
-        self.write_pkt(pkt)
+        
+        match data:
+            case 'cord':
+                response = 'xyza'.encode()
+                pkt = I2CPacket.create_pkt(response, len(response), 'd', 
+                                           pkt[I2CPacket.seq_index] + 1, self.pkt_self_id)
+                self.write_pkt(pkt)
+                
+            case 'picture':
+                response = 'Picture'.encode()
+                pkt = I2CPacket.create_pkt(response, len(response), 'd', 
+                                           pkt[I2CPacket.seq_index] + 1, self.pkt_self_id)
+                self.write_pkt(pkt)
+                
+            case default:
+                response = 'Command not recognized'.encode()
+                pkt = I2CPacket.create_pkt(response, len(response), 'd', 
+                                           pkt[I2CPacket.seq_index] + 1, self.pkt_self_id)
+                self.write_pkt(pkt)
 
 
     def wait_response(self):
