@@ -41,24 +41,41 @@ class VisionSystem:
         color_image = np.asanyarray(color_frame.get_data())
         results = model(color_image)
         results.render()
-        return results.xyxy
+        highestConf = -1
+        bestResults = None
+
+        if(!results.xyxy):
+            return None
+
+        for i in result.xyxy:
+            if(i[5] > highestConf):
+                bestResults = i
+
+        return bestResults
 
     def getTubeData(self, color_frame, depth_frame, tubeResults):
-        if len(tubeResults.xyxy) > 0 and len(tubeResults.xyxy[0]) > 0:
-            centerx, centery, depth = self.getTubeCoordinates(tubeResults, depth_frame)
+        if tubeResults is not None
+            centerx, centery = self.getTubePixelCoordinates(tubeResults)
+            realx, realy, depth = translatePixelsToReal(centerx, centery, depth_frame)
             orientation = self.getTubeOrientation(color_frame, tubeResults, centerx, centery)
             return centerx, centery, depth, orientation
         return -1, -1, -1, -1
 
-    def getTubeCoordinates(self, depth_frame, tubeResults):
-        centery = int((tubeResults[0][0][1] + tubeResults[0][0][3]) / 2)
-        centerx = int((tubeResults[0][0][0] + tubeResults[0][0][2]) / 2)
+    def getTubePixelCoordinates(self, tubeResults):
+        centerx = int((tubeResults[0] + tubeResults[2]) / 2)
+        centery = int((tubeResults[1] + tubeResults[3]) / 2)
+        return realx, realy
+
+    def translatePixelsToReal(self, centerx, centery, depth_frame):
         depth = depth_frame.get_distance(centerx, centery) * 100
-        return centerx, centery, depth
+        realx = (centerx - 320) * depth / 386
+        realy = (centery - 240) * depth / 386
+        return realx, realy, depth
+
 
     def getTubeOrientation(self, color_frame, tubeResults, centerx, centery):
-        xdist = (tubeResults[0][0][0] - tubeResults[0][0][2])
-        ydist = (tubeResults[0][0][1] - tubeResults[0][0][3])
+        xdist = (tubeResults[0] - tubeResults[2])
+        ydist = (tubeResults[1] - tubeResults[3])
         ratio = xdist / ydist
 
         if ratio > 3:
@@ -68,8 +85,8 @@ class VisionSystem:
         
         color_image = np.asanyarray(color_frame.get_data())
         return int(edge.get_degrees(
-                    (int(tubeResults[0][0][0]), int(tubeResults[0][0][1])),
-                    (int(tubeResults[0][0][2]), int(tubeResults[0][0][3])),
+                    (int(tubeResults[0]), int(tubeResults[1])),
+                    (int(tubeResults[2]), int(tubeResults[3])),
                     (centerx, centery),
                     color_image)
                 )
