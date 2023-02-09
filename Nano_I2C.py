@@ -172,7 +172,7 @@ class Nano_I2CBus:
                                            pkt[I2CPacket.seq_index] + 1, self.pkt_self_id)
                 self.write_pkt(pkt)
                 
-            case 'picture':
+            case 'img':
                 response = 'Picture'.encode()
                 pkt = I2CPacket.create_pkt(response, len(response), 'd', 
                                            pkt[I2CPacket.seq_index] + 1, self.pkt_self_id)
