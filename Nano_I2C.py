@@ -103,7 +103,7 @@ class Nano_I2CBus:
 
         self.log.write(date + ': ' + msg + '\n')
 
-    def write_pkt(self, pkt):
+    def write_pkt(self, response, status):
         '''
         Takes a string, converts it to bytes to send across I2C to the
         specified target.
@@ -112,6 +112,9 @@ class Nano_I2CBus:
 
         Returns number bytes sent
         '''
+        pkt = I2CPacket.create_pkt(response, len(response), status, 
+                                pkt[I2CPacket.seq_index] + 1, self.pkt_self_id)
+        
         # If pkt is already in bytes, do nothing
         if type(pkt) == bytes:
             pass
@@ -140,49 +143,6 @@ class Nano_I2CBus:
         # Open buffer and return first 256 bytes
         with open(self.buf, 'rb') as buf:
             return buf.read(self.blocksize)
-
-    def system_task(self):
-        '''
-        Checks inside the buffer to see if has anything written inside.
-        Specifically we are checking for any keywords that do system-type tasks
-        such as turning the vision system on or off.
-        '''
-        pkt = self.wait_response()
-
-        if not pkt:
-            return
-
-        # If the packet isn't the target ID (pi) and it isn't a command
-        if (pkt[I2CPacket.id_index].decode() != self.pkt_targ_id) or (pkt[I2CPacket.stat_index] != b'c'):
-            return
-
-        print('Command received:')
-
-        data = pkt[I2CPacket.data_index].decode().strip('\0')
-
-        print(data)
-
-        # To Do: add system commands
-        # Respond back to Jetson
-        
-        if data == 'cord':
-                response = 'xyza'.encode()
-                pkt = I2CPacket.create_pkt(response, len(response), 'd', 
-                                           pkt[I2CPacket.seq_index] + 1, self.pkt_self_id)
-                self.write_pkt(pkt)
-                
-        elif data ==  'picture':
-                response = 'Picture'.encode()
-                pkt = I2CPacket.create_pkt(response, len(response), 'd', 
-                                           pkt[I2CPacket.seq_index] + 1, self.pkt_self_id)
-                self.write_pkt(pkt)
-                
-        else:
-                response = 'Command not recognized'.encode()
-                pkt = I2CPacket.create_pkt(response, len(response), 'd', 
-                                           pkt[I2CPacket.seq_index] + 1, self.pkt_self_id)
-                self.write_pkt(pkt)
-
 
     def wait_response(self):
         '''
@@ -218,13 +178,3 @@ class Nano_I2CBus:
         # If timeout occurs, return false
         self.write_log('Timeout occured. Returning false.')
         return False
-
-def main():
-    # Initialize the I2C bus
-    i2c = Nano_I2CBus()
-
-    while True:
-        i2c.system_task()
-
-if __name__ == '__main__':
-    main()
