@@ -56,7 +56,7 @@ class VisionSystem:
         return bestResults
 
     def getTubeData(self, color_frame, depth_frame, tubeResults):
-        if tubeResults is not None
+        if tubeResults is not None:
             centerx, centery = self.getTubePixelCoordinates(tubeResults)
             realx, realy, depth = self.translatePixelsToReal(centerx, centery, depth_frame)
             orientation = self.getTubeOrientation(color_frame, tubeResults, centerx, centery)

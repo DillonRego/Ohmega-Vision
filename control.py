@@ -1,11 +1,6 @@
-import pyrealsense2 as rs
-import numpy as np
-import cv2
-import time
-import torch
 import math
-import edge
 from Nano_I2C import *
+from visionSystem import VisionSystem
 
 def get3Dlocation(realWorldCords):
     return (realWorldCords[0] ** 2 + realWorldCords[1] ** 2 + realWorldCords[2] ** 2) ** 0.5
@@ -116,9 +111,7 @@ def main():
                 
         else:
             response = 'Command not recognized'.encode()
-            pkt = I2CPacket.create_pkt(response, len(response), 'd', 
-                                           pkt[I2CPacket.seq_index] + 1, i2c.pkt_self_id)
-            i2c.write_pkt(pkt)
+            i2c.write_pkt(response, 'd')
 
 if __name__ == '__main__':
     main()
