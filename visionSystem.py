@@ -6,16 +6,18 @@ import torch
 import math
 import edge
 
-class VisionSystem:
-    def __init__(self, directoryOfNNWeights= '/home/herbie/OVision2022/pyrealsense/librealsense-2.51.1/build/', nameOfWeights="best.pt"):
-        self.model = torch.hub.load(directoryOfNNWeights, 'custom',
-                               path=nameOfWeights,
-                               source='local')
-        self.pipeline = rs.pipeline()
-        config = rs.config()
 
-        config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
-        config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+class VisionSystem:
+    def __init__(self, directoryOfNNWeights='/home/herbie/OVision2022/pyrealsense/librealsense-2.51.1/build/',
+                 nameOfWeights="best.pt"):
+        self.model = torch.hub.load(directoryOfNNWeights, 'custom',
+                                    path=nameOfWeights,
+                                    source='local')
+        self.pipeline = rs.pipeline()
+        self.config = rs.config()
+
+        self.config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+        self.config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
 
     def processOneFrame(self):
         '''
@@ -30,8 +32,8 @@ class VisionSystem:
         return self.getTubeData(color_frame, depth_frame, results)
 
     def captureImage(self):
-        self.pipeline.start(config)
-        frames = pipeline.wait_for_frames()
+        self.pipeline.start(self.config)
+        frames = self.pipeline.wait_for_frames()
         depth_frame = frames.get_depth_frame()
         color_frame = frames.get_color_frame()
         self.pipeline.stop()
@@ -39,16 +41,16 @@ class VisionSystem:
 
     def checkForTube(self, color_frame):
         color_image = np.asanyarray(color_frame.get_data())
-        results = model(color_image)
+        results = self.model(color_image)
         results.render()
         highestConf = -1
         bestResults = None
 
-        if(!results.xyxy):
+        if not results.xyxy:
             return None
 
-        for i in result.xyxy:
-            if(i[5] > highestConf):
+        for i in results.xyxy:
+            if i[5] > highestConf:
                 bestResults = i
 
         return bestResults
@@ -56,7 +58,7 @@ class VisionSystem:
     def getTubeData(self, color_frame, depth_frame, tubeResults):
         if tubeResults is not None
             centerx, centery = self.getTubePixelCoordinates(tubeResults)
-            realx, realy, depth = translatePixelsToReal(centerx, centery, depth_frame)
+            realx, realy, depth = self.translatePixelsToReal(centerx, centery, depth_frame)
             orientation = self.getTubeOrientation(color_frame, tubeResults, centerx, centery)
             return centerx, centery, depth, orientation
         return -1, -1, -1, -1
@@ -64,14 +66,13 @@ class VisionSystem:
     def getTubePixelCoordinates(self, tubeResults):
         centerx = int((tubeResults[0] + tubeResults[2]) / 2)
         centery = int((tubeResults[1] + tubeResults[3]) / 2)
-        return realx, realy
+        return centerx, centery
 
     def translatePixelsToReal(self, centerx, centery, depth_frame):
         depth = depth_frame.get_distance(centerx, centery) * 100
         realx = (centerx - 320) * depth / 386
         realy = (centery - 240) * depth / 386
         return realx, realy, depth
-
 
     def getTubeOrientation(self, color_frame, tubeResults, centerx, centery):
         xdist = (tubeResults[0] - tubeResults[2])
@@ -82,11 +83,11 @@ class VisionSystem:
             return 90
         elif ratio < .55:
             return 0
-        
+
         color_image = np.asanyarray(color_frame.get_data())
         return int(edge.get_degrees(
-                    (int(tubeResults[0]), int(tubeResults[1])),
-                    (int(tubeResults[2]), int(tubeResults[3])),
-                    (centerx, centery),
-                    color_image)
-                )
+            (int(tubeResults[0]), int(tubeResults[1])),
+            (int(tubeResults[2]), int(tubeResults[3])),
+            (centerx, centery),
+            color_image)
+        )
