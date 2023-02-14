@@ -83,30 +83,30 @@ def main():
         # To Do: fix system commands and
         # Respond back to Jetson
         
-        if data == 'get_tube':
+        if data == 'cord':
             result = collectTubeLocation(vis)
             if result == -2:
-                response = 'tube error'.encode()
+                response = 'error'.encode()
             if result == -1:
-                response = 'no tube'.encode()
+                response = 'none'.encode()
             elif not isinstance(result, tuple):
                 response = (f'turn: {"left" if result < 0 else "right"}').encode()
             else:
-                response = 'XYZ'.encode() #To Do: fix return location cordinates
+                response = 'xyz'.encode() #To Do: fix return location cordinates
             i2c.write_pkt(response, 'd')
                 
-        elif data ==  'take_picture':
+        elif data ==  'img': #To Do: fix to send img
             result = vis.captureImage()
             
-            response = 'Start'.encode()
+            response = 'start'.encode()
             i2c.write_pkt(response, 'd')
             
             # I2C_save_image(result[0]) ADD THIS TO I2C
-            response = 'Stop'.encode()
+            response = 'stop'.encode()
             i2c.write_pkt(response, 'd')
             
             
-            response = 'Picture'.encode()
+            response = 'picture'.encode()
             i2c.write_pkt(response, 'd')
                 
         else:
