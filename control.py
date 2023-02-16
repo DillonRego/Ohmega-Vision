@@ -62,17 +62,17 @@ def main():
     # Initialize the I2C bus
     i2c = Nano_I2CBus()
     # Initialize the Vision System
-    vis = VisionSystem()
+    #vis = VisionSystem()
 
     while True:
         pkt = i2c.wait_response()
 
         if not pkt:
-            return
+            continue
 
         # If the packet isn't the target ID (pi) and it isn't a command
         if (pkt[I2CPacket.id_index].decode() != i2c.pkt_targ_id) or (pkt[I2CPacket.stat_index] != b'c'):
-            return
+            continue
 
         print('Command received:')
 
@@ -84,7 +84,8 @@ def main():
         # Respond back to Jetson
         
         if data == 'cord':
-            result = collectTubeLocation(vis)
+            #result = collectTubeLocation(vis)
+            result = 0
             if result == -2:
                 response = 'error'.encode()
             if result == -1:
@@ -96,8 +97,8 @@ def main():
             i2c.write_pkt(response, 'd', 0)
                 
         elif data ==  'img': #To Do: fix to send img
-            result = vis.captureImage() #fix img
-            i2c.file_send(result)
+            #result = vis.captureImage()
+            i2c.file_send('Tube.JPG')
                 
         else:
             response = 'Command not recognized'.encode()

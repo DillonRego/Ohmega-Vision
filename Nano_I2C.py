@@ -185,11 +185,15 @@ class Nano_I2CBus:
         sequence = 0
         
         # Send File name to start the transmission
-        self.write_pkt(filename.encode(), 't', sequence)
-        pkt = self.wait_response()
-        
-        if pkt[I2CPacket.stat_index] != b'c':
-            return False
+        self.write_pkt(filename.encode(), 'd', sequence)
+
+        #while True:
+        #    pkt = self.wait_response()
+
+        #    if(pkt[I2CPacket.id_index].decode() == self.pkt_targ_id) and (pkt[I2CPacket.stat_index] == b'c'):
+        #        break
+
+        time.sleep(self.timewait)
 
         # Try to open requested file for reading
         try:
@@ -204,7 +208,6 @@ class Nano_I2CBus:
             with reqfile:
                 # Read first chunk of data
                 data = reqfile.read(I2CPacket.data_len)
-
                 # While we are still grabbing data from the file
                 while data:
                     # Write data to buffer to be sent
@@ -243,7 +246,7 @@ class Nano_I2CBus:
 
             # Grab result of the wait
             result = self.wait_response()
-
+            
             # If wait returns false, return false
             if not result:
                 return False
