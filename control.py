@@ -93,25 +93,15 @@ def main():
                 response = (f'turn: {"left" if result < 0 else "right"}').encode()
             else:
                 response = 'xyz'.encode() #To Do: fix return location cordinates
-            i2c.write_pkt(response, 'd')
+            i2c.write_pkt(response, 'd', 0)
                 
         elif data ==  'img': #To Do: fix to send img
             result = vis.captureImage()
-            
-            response = 'start'.encode()
-            i2c.write_pkt(response, 'd')
-            
-            # I2C_save_image(result[0]) ADD THIS TO I2C
-            response = 'stop'.encode()
-            i2c.write_pkt(response, 'd')
-            
-            
-            response = 'picture'.encode()
-            i2c.write_pkt(response, 'd')
+            i2c.file_send(result)
                 
         else:
             response = 'Command not recognized'.encode()
-            i2c.write_pkt(response, 'd')
+            i2c.write_pkt(response, 'd', 0)
 
 if __name__ == '__main__':
     main()

@@ -103,7 +103,7 @@ class Nano_I2CBus:
 
         self.log.write(date + ': ' + msg + '\n')
 
-    def write_pkt(self, response, status):
+    def write_pkt(self, response, status, sequence):
         '''
         Takes a string, converts it to bytes to send across I2C to the
         specified target.
@@ -113,7 +113,7 @@ class Nano_I2CBus:
         Returns number bytes sent
         '''
         pkt = I2CPacket.create_pkt(response, len(response), status, 
-                                pkt[I2CPacket.seq_index] + 1, self.pkt_self_id)
+                                sequence, self.pkt_self_id)
         
         # If pkt is already in bytes, do nothing
         if type(pkt) == bytes:
@@ -172,9 +172,84 @@ class Nano_I2CBus:
                 else:
                     # If invalid, send an error message so pi resends it
                     print('Requesting new packet (invalid)')
-                    pkt = I2CPacket.create_pkt(b'',0, 'e', 0, self.pkt_self_id)
-                    self.write_pkt(pkt)
+                    self.write_pkt(b'', 'e', 0)
 
         # If timeout occurs, return false
         self.write_log('Timeout occured. Returning false.')
         return False
+    
+    def file_send(self, filename: str):
+        '''
+        Send a file from the jetson to the pi
+        '''
+        sequence = 0
+        
+        # Send File name to start the transmission
+        self.write_pkt(filename.encode(), 't', sequence)
+
+        # Try to open requested file for reading
+        try:
+            reqfile = open(filename, 'rb')
+
+        # Ignore File Not Found exceptions and move on to ending transmission
+        except FileNotFoundError:
+            self.write_log('File does not exist')
+
+        # If open was successful, start transferring data
+        else:
+            with reqfile:
+                # Read first chunk of data
+                data = reqfile.read(I2CPacket.data_len)
+
+                # While we are still grabbing data from the file
+                while data:
+                    # Write data to buffer to be sent
+                    if not self.send_and_wait(data, 'd', sequence):
+                        print('Error writing packet')
+                        self.write_log('Error writing data')
+                        return False
+                
+                    sequence += 1
+
+                    # Read next chunk of data
+                    data = reqfile.read(I2CPacket.data_len)
+
+        # End transmission
+        # Notify Pi transmission is over
+        self.write_pkt(b'end', 't', sequence)
+
+        self.write_log('Ending transmission')
+
+        print('Ending transmission')
+        
+    def send_and_wait(self, data: bytes, status: str, sequence: int):
+        '''
+        Send a packet, make continuous reads, resend packets if receiver
+        sends an error message.
+
+        Return false if an error occured (timeout or error writing)
+        Return packet if non-error packet received
+        '''
+
+        # Sent packet and wait for a response
+        while True:
+            # Write packet, return false if it fails
+            if not self.write_pkt(data, status, sequence):
+                return False
+
+            # Grab result of the wait
+            result = self.wait_response()
+
+            # If wait returns false, return false
+            if not result:
+                return False
+
+            # Otherwise if packet was received
+            else:
+                # Resend packet if an error packet was received
+                if result[I2CPacket.stat_index] == b'e':
+                    pass
+
+                # Return packet if non-error
+                else:
+                    return result
