@@ -363,9 +363,11 @@ def main():
     if pkt[I2CPacket.stat_index] != b't':
         print('Transmission starting')
     
+    img = pkt[I2CPacket.data_index].decode().strip('\0')
+    
     time.sleep(bus.timewait)
     # wait for file
-    data = bus.read_file()
+    data = bus.read_file(img)
 
 
 if __name__ == '__main__':
