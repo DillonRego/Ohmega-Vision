@@ -186,6 +186,10 @@ class Nano_I2CBus:
         
         # Send File name to start the transmission
         self.write_pkt(filename.encode(), 't', sequence)
+        pkt = self.wait_response()
+        
+        if pkt[I2CPacket.stat_index] != b'c':
+            return False
 
         # Try to open requested file for reading
         try:

@@ -346,7 +346,7 @@ def main():
     bus = I2CBus()
 
     # test writing and reading file
-    bus.write_pkt('cord', 'c', 0)
+    bus.write_pkt(b'cord', 'c', 0)
 
     # wait for response
     pkt = bus.wait_response()
@@ -356,18 +356,18 @@ def main():
     print(data)
 
     # test writing packet with command 'img'
-    bus.write_pkt('img', 'c', 0)
+    bus.write_pkt(b'img', 'c', 0)
     
     pkt = bus.wait_response()
     
     if pkt[I2CPacket.stat_index] != b't':
         print('Transmission starting')
     
-    img = pkt[I2CPacket.data_index].decode().strip('\0')
+    filename = pkt[I2CPacket.data_index].decode().strip('\0')
     
-    time.sleep(bus.timewait)
+    #time.sleep(bus.timewait)
     # wait for file
-    data = bus.read_file(img)
+    data = bus.read_file(filename)
 
 
 if __name__ == '__main__':

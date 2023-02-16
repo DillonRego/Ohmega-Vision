@@ -96,7 +96,7 @@ def main():
             i2c.write_pkt(response, 'd', 0)
                 
         elif data ==  'img': #To Do: fix to send img
-            result = vis.captureImage()
+            result = vis.captureImage() #fix img
             i2c.file_send(result)
                 
         else:
