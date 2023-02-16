@@ -32,10 +32,10 @@ class I2CPacket:
     seq_index: int = 4
     id_index: int = 5
 
-    def create_pkt(data: bytes, size: int, status: str, 
+    def create_pkt(data: bytes, size: int, status: str,
                    sequence: int, ID: str):
         '''
-        Builds a packet containing the specified data. Adds in checksum. 
+        Builds a packet containing the specified data. Adds in checksum.
 
         Returns bytes object for writing.
         '''
@@ -44,7 +44,7 @@ class I2CPacket:
             return False
 
         # Create packet with zero checksum for calculation
-        pkt_array = bytearray(struct.pack(I2CPacket.struct_format, 
+        pkt_array = bytearray(struct.pack(I2CPacket.struct_format,
                                             data, size, status[:1].encode(),
                                             0, sequence, ID[:1].encode()))
 
@@ -62,7 +62,7 @@ class I2CPacket:
 
     def verify_pkt(pkt: bytes):
         '''
-        Given a packet, calculates checksum, checks with provided checksum of 
+        Given a packet, calculates checksum, checks with provided checksum of
         packet.
 
         Returns True if they match, False if they do not.
@@ -89,7 +89,7 @@ class I2CBus:
     '''
     I2C bus object for the Raspberry Pi to communicate with the Jetson.
     '''
-    
+
     blocksize: int = 256    # Max bytes capable of sending
     timewait: float = 0.2
 
@@ -99,7 +99,7 @@ class I2CBus:
     def __init__(self, target = 0x64, dev = '/dev/i2c-1'):
         '''
         Initializes the bus using the imported library.
-        
+
         Default device address for Jetson is 0x64
         Default device for I2C on Pi is i2c-1
         '''
@@ -109,7 +109,7 @@ class I2CBus:
 
     def write_msg(self, data):
         '''
-        Takes a string, converts it to bytes to send across I2C to the 
+        Takes a string, converts it to bytes to send across I2C to the
         specified target.
 
         msg limited to 256 bytes.
@@ -146,13 +146,13 @@ class I2CBus:
             raise ValueError
 
         data = self.bus.read(0x0, size)
-        
+
         # Read requested size, return bytes object
         return data
 
     def write_pkt(self, data: bytes, status: str, sequence: int):
         '''
-        Builds a packet around the requested data, sends it over I2C to the 
+        Builds a packet around the requested data, sends it over I2C to the
         Jetson.
         '''
         pkt = I2CPacket.create_pkt(data, len(data), status, sequence, self.pkt_self_id)
@@ -162,7 +162,7 @@ class I2CBus:
 
     def read_pkt(self):
         '''
-        Requests a read from the Jetson, unpacks its data if valid, 
+        Requests a read from the Jetson, unpacks its data if valid,
         and returns the data in the form of a tuple
         '''
         # Timeout in 3 second
@@ -180,10 +180,10 @@ class I2CBus:
 
             # Parse packet if it is valid and return
             return I2CPacket.parse_pkt(data)
-        
+
         # If timeout occurs, return false
         return False
-    
+
     def wait_response(self):
         '''
         Blocks until the target responds
@@ -257,48 +257,10 @@ class I2CBus:
 
                 # Return packet if non-error
                 else:
+                    #print('writing data')
                     return result
 
         raise OSError('Could not establish communication with device')
-
-    def write_file(self, file: str):
-        '''
-        Writes the contents of a file to the Jetson. Works in tandem with the
-            monitor on the Jetson's side of the comm channel, as we can only 
-            send the file 256 bytes at a time.
-
-        file is a string, which contains the name of the file desired to be 
-            sent
-        '''
-        sequence = 0
-        
-        # Open the given file
-        with open(file, 'rb') as open_file:
-            # Notify Jetson that we want to transmit a file, after confirming
-            # that the file exists.
-            cmd = 'file receive ' + file
-            if not self.send_and_wait(cmd.encode(), 'c', sequence):
-                return False
-
-            # Read first chunk of data
-            data = open_file.read(I2CPacket.data_len)
-
-            # While there is data to send
-            while data:
-                # Send data across I2C
-                if not self.send_and_wait(data, 'd', sequence):
-                    return False
-                
-                # Increment packet count
-                sequence += 1
-
-                # Read next chunk of data
-                data = open_file.read(I2CPacket.data_len)
-        
-        # Terminate transmission
-        self.write_pkt(b'', 't', sequence)
-
-        return True
 
     def read_file(self, file: str):
         '''
@@ -306,7 +268,7 @@ class I2CBus:
             monitor on the Jetson's side of the comm channel, as we can only
             receive the file 256 bytes at a time.
 
-        file is a string, which contains the name of the file desired to be 
+        file is a string, which contains the name of the file desired to be
             read
         '''
         sequence = 0
@@ -320,13 +282,13 @@ class I2CBus:
             # Return false on packet error
             if not pkt:
                 return False
-            
+
             # While the Jetson does not terminate the transmission
             while pkt[I2CPacket.stat_index] != b't':
                 # Grab relevant data
                 data = pkt[I2CPacket.data_index]
                 data_len = pkt[I2CPacket.dlen_index]
-                
+
                 # Write data to new file
                 new_file.write(data[:data_len])
 
@@ -340,7 +302,7 @@ class I2CBus:
                 if not pkt:
                     return False
 
-        return True  
+        return True
 
 def main():
     bus = I2CBus()
@@ -349,25 +311,43 @@ def main():
     bus.write_pkt(b'cord', 'c', 0)
 
     # wait for response
-    pkt = bus.wait_response()
+    while True:
+        pkt = bus.wait_response()
 
-    # print received data
-    data = pkt[I2CPacket.data_index].decode().strip('\0')
-    print(data)
+        if(pkt[I2CPacket.id_index].decode() != bus.pkt_targ_id) or (pkt[I2CPacket.stat_index] != b'd'):
+            continue
+
+        # print received data
+        data = pkt[I2CPacket.data_index].decode().strip('\0')
+        if data:
+            print(data)
+            break;
 
     # test writing packet with command 'img'
     bus.write_pkt(b'img', 'c', 0)
-    
-    pkt = bus.wait_response()
-    
-    if pkt[I2CPacket.stat_index] != b't':
-        print('Transmission starting')
-    
-    filename = pkt[I2CPacket.data_index].decode().strip('\0')
-    
+
+    # wait for response
+    while True:
+        pkt = bus.wait_response()
+
+        #print(pkt)
+
+        if(pkt[I2CPacket.id_index].decode() != bus.pkt_targ_id):
+            continue
+
+        # print received data
+        filename = pkt[I2CPacket.data_index].decode().strip('\0')
+        if filename:
+            print(filename)
+            break;
+
+    print('Transmission starting')
+
     #time.sleep(bus.timewait)
     # wait for file
+    #bus.write_pkt(b'', 'c', 0)
     data = bus.read_file(filename)
+    print(data)
 
 
 if __name__ == '__main__':
