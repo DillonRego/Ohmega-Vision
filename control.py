@@ -1,15 +1,24 @@
 import math
+import cv2
 from Nano_I2C import *
 from visionSystem import VisionSystem
+
+#Offset in centimeters
+offset_x = 2.9
+offset_y = 4.9
+offset_z = 23.544
+camera_angle = math.radians(65)
 
 def get3Dlocation(realWorldCords):
     return (realWorldCords[0] ** 2 + realWorldCords[1] ** 2 + realWorldCords[2] ** 2) ** 0.5
 
 def translateCoordinates(x, y, depth):
-        real_z = depth * math.sin(camera_angle)
-        groundhyp = depth * math.cos(camera_angle)
-        real_y = (groundhyp ** 2 - real_x ** 2) ** .5
-        return x, real_y, real_z
+        camera_hyp = (x ** 2 + y ** 2) ** 0.5
+        center_depth = (depth ** 2 - camera_hyp ** 2) ** 0.5
+        real_z = center_depth * math.cos(camera_angle + math.atan(y/center_depth))
+        groundhyp = depth * math.sin(camera_angle + math.atan(y/center_depth))
+        real_y = (groundhyp ** 2 - x ** 2) ** .5
+        return x + offset_x, real_y + offset_y, -real_z + offset_z
 
 def checkTubeLocationValidity(realWorldCords):
     match = [0] * 5
@@ -47,10 +56,10 @@ def collectTubeLocation(vis):
             consecutiveBad+=1
             cameraCords+=data[0]/10
         else:
+            realWorldCords[good] = translateCoordinates(data[0], data[1], data[2]) + (data[3])#tuple(sum(x) for x in zip(realWorldCords, data))
             good+=1
             consecutiveBad = 0
             consecutiveNone = 0
-            realWorldCords[i] = translateCoordinates(data[0], data[1], data[2])#tuple(sum(x) for x in zip(realWorldCords, data))
     if(consecutiveNone >= 10):
         return -1
     elif(consecutiveBad >= 10):
@@ -62,7 +71,7 @@ def main():
     # Initialize the I2C bus
     i2c = Nano_I2CBus()
     # Initialize the Vision System
-    #vis = VisionSystem()
+    vis = VisionSystem()
 
     while True:
         pkt = i2c.wait_response()
@@ -79,13 +88,11 @@ def main():
         data = pkt[I2CPacket.data_index].decode().strip('\0')
 
         print(data)
-
-        # To Do: fix system commands and
-        # Respond back to Jetson
         
+        # Read command and respond back to Pi
         if data == 'cord':
-            #result = collectTubeLocation(vis)
-            result = 0
+            result = collectTubeLocation(vis)
+            #result = 0
             if result == -2:
                 response = 'error'.encode()
             if result == -1:
@@ -96,9 +103,11 @@ def main():
                 response = 'xyz'.encode() #To Do: fix return location cordinates
             i2c.write_pkt(response, 'd', 0)
                 
-        elif data ==  'img': #To Do: fix to send img
-            #result = vis.captureImage()
-            i2c.file_send('Tube.JPG')
+        elif data ==  'img':
+            result = vis.captureImage()
+            filename = time.strftime("%Y%m%d-%H%M%S") + '.JPG'
+            cv2.imwrite(filename, result[0])
+            i2c.file_send(filename)
                 
         else:
             response = 'Command not recognized'.encode()
