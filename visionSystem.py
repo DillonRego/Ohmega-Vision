@@ -8,14 +8,15 @@ import edge
 
 
 class VisionSystem:
-    def __init__(self, directoryOfNNWeights='/home/herbie/OVision2022/pyrealsense/librealsense-2.51.1/build/',
-                 nameOfWeights="best.pt"):
+    def __init__(self, directoryOfNNWeights='/home/herbie/jetson/yolov5',
+                 nameOfWeights="best-2.pt"):
         self.model = torch.hub.load(directoryOfNNWeights, 'custom',
                                     path=nameOfWeights,
                                     source='local')
         self.pipeline = rs.pipeline()
         self.config = rs.config()
-
+        
+       
         self.config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
         self.config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
 
@@ -45,11 +46,11 @@ class VisionSystem:
         results.render()
         highestConf = -1
         bestResults = None
-
+        #print(results.xyxy)
         if not results.xyxy:
             return None
 
-        for i in results.xyxy:
+        for i in results.xyxy[0]:
             if i[5] > highestConf:
                 bestResults = i
 
@@ -60,7 +61,7 @@ class VisionSystem:
             centerx, centery = self.getTubePixelCoordinates(tubeResults)
             realx, realy, depth = self.translatePixelsToReal(centerx, centery, depth_frame)
             orientation = self.getTubeOrientation(color_frame, tubeResults, centerx, centery)
-            return centerx, centery, depth, orientation
+            return realx, realy, depth, orientation
         return -1, -1, -1, -1
 
     def getTubePixelCoordinates(self, tubeResults):
@@ -91,3 +92,9 @@ class VisionSystem:
             (centerx, centery),
             color_image)
         )
+
+
+vs = VisionSystem()
+while(True):
+    print(vs.processOneFrame())
+    time.sleep(1)
