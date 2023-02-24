@@ -9,7 +9,7 @@ import edge
 
 class VisionSystem:
     def __init__(self, directoryOfNNWeights='/home/herbie/jetson/yolov5',
-                 nameOfWeights="best-2.pt"):
+                 nameOfWeights="last.pt"):
         self.model = torch.hub.load(directoryOfNNWeights, 'custom',
                                     path=nameOfWeights,
                                     source='local')
@@ -94,7 +94,7 @@ class VisionSystem:
         )
 
 
-vs = VisionSystem()
-while(True):
-    print(vs.processOneFrame())
-    time.sleep(1)
+#vs = VisionSystem()
+#while(True):
+    #print(vs.processOneFrame())
+    #time.sleep(1)
