@@ -13,33 +13,40 @@ def get3Dlocation(realWorldCords):
     return (realWorldCords[0] ** 2 + realWorldCords[1] ** 2 + realWorldCords[2] ** 2) ** 0.5
 
 def translateCoordinates(x, y, depth):
+        print(f'X: {x} Y: {y} depth: {depth}')
         camera_hyp = (x ** 2 + y ** 2) ** 0.5
         center_depth = (depth ** 2 - camera_hyp ** 2) ** 0.5
-        real_z = center_depth * math.cos(camera_angle + math.atan(y/center_depth))
-        groundhyp = depth * math.sin(camera_angle + math.atan(y/center_depth))
+        #real_z = depth * math.cos(camera_angle + math.atan(y/center_depth))
+        groundhyp = depth * math.sin(camera_angle + math.atan(-y/center_depth))
+        
+        real_z = (depth**2 - groundhyp ** 2) ** .5
+        print(math.atan(y/center_depth))
+        print(groundhyp)
         real_y = (groundhyp ** 2 - x ** 2) ** .5
-        return x + offset_x, real_y + offset_y, -real_z + offset_z
+        return x + offset_x, real_y + offset_y, real_z - offset_z
 
 def checkTubeLocationValidity(realWorldCords):
     match = [0] * 5
     threshold = 10
     matchAmount = 0
-    result = (0, 0, 0)
+    result = (0, 0, 0, 0)
     for i in range(5):
         for j in range(5):
             if j != i :
                 if abs(get3Dlocation(realWorldCords[i]) - get3Dlocation(realWorldCords[j])) < threshold:
-                    match[i] = 1
+                    match[j] = 1
         for k in range(5):
             if match[k] == 1:
-                tuple(sum(x) for x in zip(realWorldCords[k], result))
+                result = tuple(sum(x) for x in zip(result, realWorldCords[k]))
                 matchAmount+=1
                 match[k] = 0
         if matchAmount >= 3:
+            result = tuple(sum(x) for x in zip(result, realWorldCords[i]))
+            result = tuple(x/(matchAmount+1) for x in result)
             return result
         else:
             matchAmount = 0
-            result = (0, 0, 0)
+            result = (0, 0, 0, 0)
     return -2
 
 def collectTubeLocation(vis):
@@ -47,7 +54,7 @@ def collectTubeLocation(vis):
     consecutiveNone = 0
     good = 0
     cameraCords = 0
-    realWorldCords = [(0, 0, 0, 0)] * 5
+    realWorldCords = []
     while(good < 5 and consecutiveBad < 10 and consecutiveNone < 10):
         data = vis.processOneFrame()
         if(data[2] == - 1):
@@ -56,7 +63,9 @@ def collectTubeLocation(vis):
             consecutiveBad+=1
             cameraCords+=data[0]/10
         else:
-            realWorldCords[good] = translateCoordinates(data[0], data[1], data[2]) + (data[3])#tuple(sum(x) for x in zip(realWorldCords, data))
+            realWorldCords.append(translateCoordinates(data[0], data[1], data[2]) + (data[3],))
+            print(realWorldCords[good])
+            #realWorldCords.append(translateCoordinates(data[0],data[1],data[2]) + tuple(0))
             good+=1
             consecutiveBad = 0
             consecutiveNone = 0
@@ -69,49 +78,52 @@ def collectTubeLocation(vis):
 
 def main():
     # Initialize the I2C bus
-    i2c = Nano_I2CBus()
+    #i2c = Nano_I2CBus()
     # Initialize the Vision System
     vis = VisionSystem()
 
     while True:
-        pkt = i2c.wait_response()
+        #pkt = i2c.wait_response()
 
-        if not pkt:
-            continue
+        #if not pkt:
+        #    continue
 
         # If the packet isn't the target ID (pi) and it isn't a command
-        if (pkt[I2CPacket.id_index].decode() != i2c.pkt_targ_id) or (pkt[I2CPacket.stat_index] != b'c'):
-            continue
+        #if (pkt[I2CPacket.id_index].decode() != i2c.pkt_targ_id) or (pkt[I2CPacket.stat_index] != b'c'):
+        #    continue
 
-        print('Command received:')
+        #print('Command received:')
 
-        data = pkt[I2CPacket.data_index].decode().strip('\0')
-
-        print(data)
+        #data = pkt[I2CPacket.data_index].decode().strip('\0')
+        data = 'cord'
+        #print(data)
         
         # Read command and respond back to Pi
         if data == 'cord':
             result = collectTubeLocation(vis)
-            #result = 0
             if result == -2:
                 response = 'error'.encode()
-            if result == -1:
+            elif result == -1:
                 response = 'none'.encode()
             elif not isinstance(result, tuple):
                 response = (f'turn: {"left" if result < 0 else "right"}').encode()
             else:
-                response = 'xyz'.encode() #To Do: fix return location cordinates
-            i2c.write_pkt(response, 'd', 0)
+                #response = result.encode()
+            #i2c.write_pkt(response, 'd', 0)
+                print(result)
+            #print(response)
                 
         elif data ==  'img':
             result = vis.captureImage()
             filename = time.strftime("%Y%m%d-%H%M%S") + '.JPG'
             cv2.imwrite(filename, result[0])
-            i2c.file_send(filename)
+            #i2c.file_send(filename)
                 
         else:
             response = 'Command not recognized'.encode()
-            i2c.write_pkt(response, 'd', 0)
+            #i2c.write_pkt(response, 'd', 0)
+
+        time.sleep(2)
 
 if __name__ == '__main__':
     main()
