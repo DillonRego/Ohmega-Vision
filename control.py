@@ -78,25 +78,25 @@ def collectTubeLocation(vis):
 
 def main():
     # Initialize the I2C bus
-    #i2c = Nano_I2CBus()
+    i2c = Nano_I2CBus()
     # Initialize the Vision System
     vis = VisionSystem()
 
     while True:
-        #pkt = i2c.wait_response()
+        pkt = i2c.wait_response()
 
-        #if not pkt:
-        #    continue
+        if not pkt:
+            continue
 
         # If the packet isn't the target ID (pi) and it isn't a command
-        #if (pkt[I2CPacket.id_index].decode() != i2c.pkt_targ_id) or (pkt[I2CPacket.stat_index] != b'c'):
-        #    continue
+        if (pkt[I2CPacket.id_index].decode() != i2c.pkt_targ_id) or (pkt[I2CPacket.stat_index] != b'c'):
+            continue
 
-        #print('Command received:')
+        print('Command received:')
 
-        #data = pkt[I2CPacket.data_index].decode().strip('\0')
-        data = 'cord'
-        #print(data)
+        data = pkt[I2CPacket.data_index].decode().strip('\0')
+        #data = 'cord'
+        print(data)
         
         # Read command and respond back to Pi
         if data == 'cord':
@@ -108,20 +108,20 @@ def main():
             elif not isinstance(result, tuple):
                 response = (f'turn: {"left" if result < 0 else "right"}').encode()
             else:
-                #response = result.encode()
-            #i2c.write_pkt(response, 'd', 0)
+                s = "x{}y{}z{}"
+                s.format(*result)
+                i2c.write_pkt(response, 'd', 0)
                 print(result)
-            #print(response)
                 
         elif data ==  'img':
             result = vis.captureImage()
             filename = time.strftime("%Y%m%d-%H%M%S") + '.JPG'
             cv2.imwrite(filename, result[0])
-            #i2c.file_send(filename)
+            i2c.file_send(filename)
                 
         else:
             response = 'Command not recognized'.encode()
-            #i2c.write_pkt(response, 'd', 0)
+            i2c.write_pkt(response, 'd', 0)
 
         time.sleep(2)
 
