@@ -8,7 +8,7 @@ import edge
 
 
 class VisionSystem:
-    def __init__(self, directoryOfNNWeights='/home/herbie/jetson/yolov5',
+    def __init__(self, directoryOfNNWeights='/home/herbie/OVision2022/yolov5',
                  nameOfWeights="last.pt"):
         self.model = torch.hub.load(directoryOfNNWeights, 'custom',
                                     path=nameOfWeights,
@@ -38,7 +38,7 @@ class VisionSystem:
         depth_frame = frames.get_depth_frame()
         color_frame = frames.get_color_frame()
         self.pipeline.stop()
-        return color_frame, depth_frame
+        return color_frame, depth_frame 
 
     def checkForTube(self, color_frame):
         color_image = np.asanyarray(color_frame.get_data())
@@ -96,5 +96,5 @@ class VisionSystem:
 
 #vs = VisionSystem()
 #while(True):
-    #print(vs.processOneFrame())
-    #time.sleep(1)
+ #   print(vs.processOneFrame())
+  #  time.sleep(1)
