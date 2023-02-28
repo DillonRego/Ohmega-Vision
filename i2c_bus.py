@@ -313,6 +313,9 @@ def main():
     # wait for response
     while True:
         pkt = bus.wait_response()
+        
+        if not pkt:
+            continue
 
         if(pkt[I2CPacket.id_index].decode() != bus.pkt_targ_id) or (pkt[I2CPacket.stat_index] != b'd'):
             continue
@@ -330,7 +333,8 @@ def main():
     while True:
         pkt = bus.wait_response()
 
-        #print(pkt)
+        if not pkt:
+            continue
 
         if(pkt[I2CPacket.id_index].decode() != bus.pkt_targ_id):
             continue
