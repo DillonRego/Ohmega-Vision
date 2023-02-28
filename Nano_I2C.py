@@ -183,33 +183,17 @@ class Nano_I2CBus:
         Send a file from the jetson to the pi
         '''
         sequence = 0
+        
+        # Send File name to start the transmission
+        self.write_pkt(filename.encode(), 'd', sequence)
 
-        # Send File name
-        if not self.send_and_wait(filename.encode(), 'd', sequence):
-            print('Error writing packet')
-            self.write_log('Error writing data')
-            return False
-        
-        # Send File name
-        #self.write_pkt(filename.encode(), 'd', sequence)
-        
-        # Waits for command to start the transmission
         #while True:
         #    pkt = self.wait_response()
 
-        #    if not pkt:
-        #        continue
-
-        #    if (pkt[I2CPacket.id_index].decode() == self.pkt_targ_id) and (pkt[I2CPacket.stat_index] == b'c'):
-        #        print('Command received:')
+        #    if(pkt[I2CPacket.id_index].decode() == self.pkt_targ_id) and (pkt[I2CPacket.stat_index] == b'c'):
         #        break
 
-        #print(pkt[I2CPacket.data_index].decode())
-        
-        print('Starting Transmission')
-
-        #buff = open(self.buf,'w')
-        #buff.close()
+        time.sleep(self.timewait)
 
         # Try to open requested file for reading
         try:
