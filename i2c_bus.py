@@ -342,10 +342,6 @@ def main():
             break;
 
     print('Transmission starting')
-
-    #time.sleep(bus.timewait)
-    # wait for file
-    #bus.write_pkt(b'', 'c', 0)
     data = bus.read_file(filename)
     print(data)
 
