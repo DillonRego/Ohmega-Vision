@@ -1,5 +1,6 @@
 import math
 import cv2
+import numpy as np
 from Nano_I2C import *
 from visionSystem import VisionSystem
 
@@ -7,21 +8,21 @@ from visionSystem import VisionSystem
 offset_x = 2.9
 offset_y = 4.9
 offset_z = 23.544
-camera_angle = math.radians(65)
+camera_angle = math.radians(60)
 
 def get3Dlocation(realWorldCords):
     return (realWorldCords[0] ** 2 + realWorldCords[1] ** 2 + realWorldCords[2] ** 2) ** 0.5
 
 def translateCoordinates(x, y, depth):
-        print(f'X: {x} Y: {y} depth: {depth}')
+        #print(f'X: {x} Y: {y} depth: {depth}')
         camera_hyp = (x ** 2 + y ** 2) ** 0.5
         center_depth = (depth ** 2 - camera_hyp ** 2) ** 0.5
         #real_z = depth * math.cos(camera_angle + math.atan(y/center_depth))
         groundhyp = depth * math.sin(camera_angle + math.atan(-y/center_depth))
         
         real_z = (depth**2 - groundhyp ** 2) ** .5
-        print(math.atan(y/center_depth))
-        print(groundhyp)
+        #print(math.atan(y/center_depth))
+        #print(groundhyp)
         real_y = (groundhyp ** 2 - x ** 2) ** .5
         return x + offset_x, real_y + offset_y, real_z - offset_z
 
@@ -64,7 +65,7 @@ def collectTubeLocation(vis):
             cameraCords+=data[0]/10
         else:
             realWorldCords.append(translateCoordinates(data[0], data[1], data[2]) + (data[3],))
-            print(realWorldCords[good])
+            #print(realWorldCords[good])
             #realWorldCords.append(translateCoordinates(data[0],data[1],data[2]) + tuple(0))
             good+=1
             consecutiveBad = 0
@@ -108,15 +109,16 @@ def main():
             elif not isinstance(result, tuple):
                 response = (f'turn: {"left" if result < 0 else "right"}').encode()
             else:
-                s = "x{}y{}z{}"
-                s.format(*result)
-                i2c.write_pkt(response, 'd', 0)
-                print(result)
+                s = "x{:.1f}y{:.1f}z{:.1f}a{:.1f}"
+                response = s.format(*result)
+                i2c.write_pkt(response.encode(), 'd', 0)
+                #print(data)
+                print(response)
                 
         elif data ==  'img':
             result = vis.captureImage()
             filename = time.strftime("%Y%m%d-%H%M%S") + '.JPG'
-            cv2.imwrite(filename, result[0])
+            cv2.imwrite(filename, np.asanyarray(result[0].get_data()))
             i2c.file_send(filename)
                 
         else:
