@@ -257,20 +257,12 @@ class I2CBus:
 
                 # Return packet if non-error
                 else:
-<<<<<<< HEAD
-                    print('writing data')
-=======
                     #print('writing data')
->>>>>>> 809a2d0c1c063e7af0d03b0f1ac4b5687e1a57c8
                     return result
 
         raise OSError('Could not establish communication with device')
 
-<<<<<<< HEAD
     def read_file(self):
-=======
-    def read_file(self, file: str):
->>>>>>> 809a2d0c1c063e7af0d03b0f1ac4b5687e1a57c8
         '''
         Reads the contents of a file from the Jetson. Works in tandem with the
             monitor on the Jetson's side of the comm channel, as we can only
@@ -294,17 +286,6 @@ class I2CBus:
 
         # Open file for writing
         with open(file, 'wb') as new_file:
-            # Notify Jetson that we want it to send a file
-<<<<<<< HEAD
-            
-=======
-            cmd = 'file send ' + file
-            pkt = self.send_and_wait(cmd.encode(), 'c', sequence)
-
-            # Return false on packet error
-            if not pkt:
-                return False
->>>>>>> 809a2d0c1c063e7af0d03b0f1ac4b5687e1a57c8
 
             # While the Jetson does not terminate the transmission
             while pkt[I2CPacket.stat_index] != b't':
@@ -325,52 +306,15 @@ class I2CBus:
                 # Increment packet number
                 sequence += 1
 
-<<<<<<< HEAD
         return True  
-=======
-                # Send 'ready' and wait for next packet
-                pkt = self.send_and_wait(b'', 'r', sequence)
-
-                # Return false on packet error
-                if not pkt:
-                    return False
-
-        return True
->>>>>>> 809a2d0c1c063e7af0d03b0f1ac4b5687e1a57c8
 
 def main():
     bus = I2CBus()
 
     # test writing and reading file
-    #bus.write_pkt(b'cord', 'c', 0)
+    bus.write_pkt(b'cord', 'c', 0)
 
     # wait for response
-<<<<<<< HEAD
-    #
-
-    # test writing packet with command 'img'
-    #bus.write_pkt(b'img', 'c', 0)
-    
-    # wait for response
-#     while True:
-#         pkt = bus.wait_response()
-#         
-#         #print(pkt)
-#         if not pkt:
-#             return False
-#         
-#         if(pkt[I2CPacket.id_index].decode() != bus.pkt_targ_id):
-#             continue
-# 
-#         # print received data
-#         filename = pkt[I2CPacket.data_index].decode().strip('\0')
-#         if filename:
-#             print(filename)
-#             break;
-    
-    
-    data = bus.read_file()
-=======
     while True:
         pkt = bus.wait_response()
         
@@ -386,28 +330,8 @@ def main():
             print(data)
             break;
 
-    # test writing packet with command 'img'
-    bus.write_pkt(b'img', 'c', 0)
-
-    # wait for response
-    while True:
-        pkt = bus.wait_response()
-
-        if not pkt:
-            continue
-
-        if(pkt[I2CPacket.id_index].decode() != bus.pkt_targ_id):
-            continue
-
-        # print received data
-        filename = pkt[I2CPacket.data_index].decode().strip('\0')
-        if filename:
-            print(filename)
-            break;
-
-    print('Transmission starting')
-    data = bus.read_file(filename)
->>>>>>> 809a2d0c1c063e7af0d03b0f1ac4b5687e1a57c8
+    # test sending an image with command 'img'
+    data = bus.read_file()
     print(data)
 
 
