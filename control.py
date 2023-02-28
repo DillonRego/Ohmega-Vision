@@ -84,6 +84,7 @@ def main():
     vis = VisionSystem()
 
     while True:
+        # wait for packet to be recieved
         pkt = i2c.wait_response()
 
         if not pkt:
@@ -112,13 +113,16 @@ def main():
                 s = "x{:.1f}y{:.1f}z{:.1f}a{:.1f}"
                 response = s.format(*result)
                 i2c.write_pkt(response.encode(), 'd', 0)
-                #print(data)
                 print(response)
                 
         elif data ==  'img':
             result = vis.captureImage()
+            
+            # timestamp the filename and create the image
             filename = time.strftime("%Y%m%d-%H%M%S") + '.JPG'
             cv2.imwrite(filename, np.asanyarray(result[0].get_data()))
+            
+            # send image to Pi
             i2c.file_send(filename)
                 
         else:

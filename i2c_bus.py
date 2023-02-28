@@ -268,11 +268,11 @@ class I2CBus:
             monitor on the Jetson's side of the comm channel, as we can only
             receive the file 256 bytes at a time.
 
-        file is a string, which contains the name of the file desired to be
-            read
+        sends command and waitd for a response with the filename
         '''
         sequence = 0
         
+        # Send command and wait for response with filename
         cmd = 'img'
         pkt = self.send_and_wait(cmd.encode(), 'c', sequence)
         
@@ -280,6 +280,7 @@ class I2CBus:
         if not pkt:
             return False
         
+        # filename
         file = pkt[I2CPacket.data_index].decode().strip('\0')
             
         print('Transmission starting')
@@ -311,7 +312,7 @@ class I2CBus:
 def main():
     bus = I2CBus()
 
-    # test writing and reading file
+    # test writing a command to get cordinates
     bus.write_pkt(b'cord', 'c', 0)
 
     # wait for response
@@ -330,7 +331,7 @@ def main():
             print(data)
             break;
 
-    # test sending an image with command 'img'
+    # test recieving an image file
     data = bus.read_file()
     print(data)
 
