@@ -82,6 +82,9 @@ def main():
     i2c = Nano_I2CBus()
     # Initialize the Vision System
     vis = VisionSystem()
+    
+    # Send ready command to Pi
+    i2c.write_pkt('Ready'.encode(), 'd', 0)
 
     while True:
         # wait for packet to be recieved
@@ -97,7 +100,6 @@ def main():
         print('Command received:')
 
         data = pkt[I2CPacket.data_index].decode().strip('\0')
-        #data = 'cord'
         print(data)
         
         # Read command and respond back to Pi
@@ -112,8 +114,10 @@ def main():
             else:
                 s = "x{:.1f}y{:.1f}z{:.1f}a{:.1f}"
                 response = s.format(*result)
-                i2c.write_pkt(response.encode(), 'd', 0)
-                print(response)
+            
+            # Reply back to the Pi with a given response
+            i2c.write_pkt(response.encode(), 'd', 0)
+            print(response)
                 
         elif data ==  'img':
             result = vis.captureImage()
@@ -125,7 +129,7 @@ def main():
             # send image to Pi
             i2c.file_send(filename)
                 
-        else:
+        else: #Unkown Command
             response = 'Command not recognized'.encode()
             i2c.write_pkt(response, 'd', 0)
 
