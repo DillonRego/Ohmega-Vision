@@ -184,7 +184,7 @@ class Nano_I2CBus:
         '''
         sequence = 0
 
-        # Send File name and wait for response to start
+        # Send File name and wait for a response to start
         if not self.send_and_wait(filename.encode(), 'd', sequence):
             print('Error writing packet')
             self.write_log('Error writing data')
