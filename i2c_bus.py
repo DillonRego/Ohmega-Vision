@@ -267,8 +267,6 @@ class I2CBus:
         Reads the contents of a file from the Jetson. Works in tandem with the
             monitor on the Jetson's side of the comm channel, as we can only
             receive the file 256 bytes at a time.
-
-        sends command and waitd for a response with the filename
         '''
         sequence = 0
         
@@ -309,6 +307,7 @@ class I2CBus:
 
         return True  
 
+# Used for testing sending commands and recieving data with the jetson nano
 def main():
     bus = I2CBus()
 
