@@ -1,34 +1,26 @@
 # Jetson Code Repository
 
 ## Current Usable Files
-- `main.cpp` and `run.sh`. These files run the cpp code developed last year. This code works but is not very powerful or efficient. 
-- `lidar.py` rudimentary python LiDAR controller
-
+- `boot.sh`,`control.py`, and `Nano_I2C.py`. 
+- `visionSystem.py` rudimentary python Vision System controller
 
 ## Python Instructions 
-- librealsense2 library is required via instructions here https://github.com/IntelRealSense/librealsense/issues/6964 and https://github.com/IntelRealSense/librealsense/tree/master/wrappers/python#installation
 - Note: path exports are required (these have been done on the jetson)
+- librealsense2 library is required via instructions here https://github.com/IntelRealSense/librealsense/issues/6964 and https://github.com/IntelRealSense/librealsense/tree/master/wrappers/python#installation
 - Python3.8 and python3.8-dev were used in development
 
-
-## Putty install: 
-- https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html, 
-- First link: https://the.earth.li/~sgtatham/putty/latest/w64/putty-64bit-0.77-installer.msi
-- Unbuntu version 18.04.06
-
-## Jetson nano1 (insert model number)
+## Jetson Nano System Requuirements
 - Python 3.8.0
 - Pytorch 1.12.1
 - pyrealsense2 2.51.1
 - cv2 4.6.0
 - Intel Realsense d405
 
-## How to connect to the Jetson Nano:
-- Open putty, open device manager find the port under ports com and lpt
-- Set the connection type to `serial`, and change the serial line to whatever you found in device manager and change speed to `11520`
-- Then login: `herbie (username)`, `mars2021 (password)`
+## I2C Pins
+- As of right now we are using I2C 1 on the Jetson (pins 27,28 and gnd)
+- Pins 3,5, 6 on the Raspberry pi
 
-## ssh into Jetson Nano
+## How to connect to the Jetson Nano via ssh:
 - Jetson nano must have internet access
 - If passing internet connection throught PC onto nano using an Ethernet cable
 - Go to Network Connectons -> under wifi click properties -> sharing -> check Allow internet connection settings
@@ -38,6 +30,7 @@
 - Jetson Nano 2
 - `~$ ssh herbie@192.168.137.239`
 - `~$ ssh herbie@192.168.137.51`
+- Then login: `herbie (username)`, `mars2021 (password)` or `mars2022 (password)`
 
 ## Transfering files with github
 - `git status` to check files that need to be added
@@ -45,10 +38,10 @@
 - `git commit -m 'message'` to commit all files that have been added
 - `git push` to push files to the repo
 
-## Transfer files from Jetson Nano to local PC
+## Transfer files from Jetson Nano to local PC via scp
 - `~$ scp herbie@192.168.137.76:/targetfile /destination`
 
-## Transfer files from local PC to Jetson Nano
+## Transfer files from local PC to Jetson Nano via scp
 - `~$ scp /targetfile herbie@192.168.137.76:~/destination`
 
 ## Access RealSense viewer
@@ -78,10 +71,6 @@ Specific:
 ## Jetson GPIO
 -https://github.com/NVIDIA/jetson-gpio
 -https://github.com/sparkfun/Qwiic_Py
-
-## I2C Pins
--as of right now we are using I2C 1 on the Jetson (pins 27,28 and gnd)
--pins 3,5, 6 on the Raspberry pi
 
 Look into this https://github.com/amaork/libi2c/blob/master/src/pyi2c.c
 
