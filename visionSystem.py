@@ -1,3 +1,9 @@
+#boot pathing
+import sys
+sys.path.append(".")
+sys.path.append("/usr/local/lib")
+sys.path.append("/usr/local/lib/python3.8/pyrealsense2")
+
 import pyrealsense2 as rs
 import numpy as np
 import cv2
@@ -9,7 +15,7 @@ import edge
 
 class VisionSystem:
     def __init__(self, directoryOfNNWeights='/home/herbie/OVision2022/yolov5',
-                 nameOfWeights="last.pt"):
+                 nameOfWeights="/home/herbie/OVision2022/yolov5/last.pt"):
         self.model = torch.hub.load(directoryOfNNWeights, 'custom',
                                     path=nameOfWeights,
                                     source='local')
