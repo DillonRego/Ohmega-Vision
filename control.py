@@ -4,9 +4,14 @@ import numpy as np
 from Nano_I2C import *
 from visionSystem import VisionSystem
 
-#Offset in centimeters
-offset_x = 2.9
-offset_y = 4.9
+#Old Offset in centimeters
+#offset_x = 2.9
+#offset_y = 4.9
+#offset_z = 23.544
+
+# New Offset in centimeters
+offset_x = 7.9
+offset_y = 6.1
 offset_z = 23.544
 camera_angle = math.radians(60)
 
