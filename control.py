@@ -49,6 +49,7 @@ def checkTubeLocationValidity(realWorldCords):
         if matchAmount >= 3:
             result = tuple(sum(x) for x in zip(result, realWorldCords[i]))
             result = tuple(x/(matchAmount+1) for x in result)
+            result = result[:2] + (-result[2],) + result[3:]
             return result
         else:
             matchAmount = 0
