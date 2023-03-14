@@ -17,7 +17,7 @@
 - Python3.8 and python3.8-dev were used in development
 
 ## I2C Pins
-- As of right now we are using I2C 1 on the Jetson (pins 27,28 and gnd)
+- As of right now we are using I2C 1 on the Jetson (pins 27,28 and gnd) top orange, bottom red
 - Pins 3,5, 6 on the Raspberry pi
 
 ## How to connect to the Jetson Nano via ssh:
