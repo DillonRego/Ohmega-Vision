@@ -47,21 +47,11 @@
 ## Access RealSense viewer
 - `~$ realsense-viewer`
 
-## Discrete Fourier Transform example using open cv
-- https://docs.opencv.org/3.4/d2/de8/group__core__array.html#gadd6cf9baf2b8b704a11b5f04aaf4f39d
-
-## Deep learning canny edge detection in open cv
-- $ https://cv-tricks.com/opencv-dnn/edge-detection-hed/
-- https://samuelabiodun.medium.com/edge-detection-techniques-image-processing-with-opencv-450e3ff8c601
-
 ## Training YOLOv5
 Generic:
 -https://colab.research.google.com/github/roboflow-ai/notebooks/blob/main/notebooks/train-yolov5-object-detection-on-custom-data.ipynb
 Specific:
 -https://colab.research.google.com/drive/1RsylzAtXrJbDWdYRYt_aUFyMfdyvIyKN#scrollTo=1NcFxRcFdJ_O
-
-## CUDA
-- https://learnopencv.com/getting-started-opencv-cuda-module/
 
 ## DATASET
 - https://universe.roboflow.com/tup/pvc-with-coupling
