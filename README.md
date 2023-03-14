@@ -4,17 +4,17 @@
 - `boot.sh`,`control.py`, and `Nano_I2C.py`. 
 - `visionSystem.py` rudimentary python Vision System controller
 
-## Python Instructions 
-- Note: path exports are required (these have been done on the jetson)
-- librealsense2 library is required via instructions here https://github.com/IntelRealSense/librealsense/issues/6964 and https://github.com/IntelRealSense/librealsense/tree/master/wrappers/python#installation
-- Python3.8 and python3.8-dev were used in development
-
 ## Jetson Nano System Requuirements
 - Python 3.8.0
 - Pytorch 1.12.1
 - pyrealsense2 2.51.1
 - cv2 4.6.0
 - Intel Realsense d405
+
+## Python Instructions 
+- Note: path exports are required (these have been done on the jetson)
+- librealsense2 library is required via instructions here https://github.com/IntelRealSense/librealsense/issues/6964 and https://github.com/IntelRealSense/librealsense/tree/master/wrappers/python#installation
+- Python3.8 and python3.8-dev were used in development
 
 ## I2C Pins
 - As of right now we are using I2C 1 on the Jetson (pins 27,28 and gnd)
