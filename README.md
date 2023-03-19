@@ -22,6 +22,7 @@
 ## I2C Pins
 - As of right now we are using eeprom buffer on the Jetson for I2C (pins 27,28 and gnd).
 - Pins 3, 5 and 6 on the Raspberry pi.
+- Library needed for Raspberry pi https://github.com/amaork/libi2c
 
 ## How to connect to the Jetson Nano via ssh:
 - Jetson nano must have internet access
