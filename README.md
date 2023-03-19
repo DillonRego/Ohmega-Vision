@@ -1,8 +1,11 @@
 # Jetson Code Repository
 
 ## Current Usable Files
-- `boot.sh`,`control.py`, and `Nano_I2C.py`. 
-- `visionSystem.py` rudimentary python Vision System controller
+- `boot.sh` runs `control.py` off boot.
+- `control.py` uses `Nano_I2C.py`, `visionSystem.py` and `edge.py`. 
+- `visionSystem.py` rudimentary python Vision System.
+- `streamAndNetV5.py` used to vizualize the object Detection.
+- `i2c_bus.py` used on a rasppberry pi to test our `Nano_I2C.py`.
 
 ## Jetson Nano System Requuirements
 - Python 3.8.0
@@ -17,19 +20,15 @@
 - Python3.8 and python3.8-dev were used in development
 
 ## I2C Pins
-- As of right now we are using I2C 1 on the Jetson (pins 27,28 and gnd) top orange, bottom red
-- Pins 3,5, 6 on the Raspberry pi
+- As of right now we are using eeprom buffer on the Jetson for I2C (pins 27,28 and gnd).
+- Pins 3, 5 and 6 on the Raspberry pi.
 
 ## How to connect to the Jetson Nano via ssh:
 - Jetson nano must have internet access
 - If passing internet connection throught PC onto nano using an Ethernet cable
 - Go to Network Connectons -> under wifi click properties -> sharing -> check Allow internet connection settings
-- Jetson Nano 1
-- `~$ ssh herbie@192.168.137.76`
-- `~$ ssh herbie@192.168.137.224`
-- Jetson Nano 2
-- `~$ ssh herbie@192.168.137.239`
-- `~$ ssh herbie@192.168.137.51`
+- `ifconfig` to get the ip of the jetson.
+- `~$ ssh herbie@192.168.137.xxx`
 - Then login: `herbie (username)`, `mars2021 (password)` or `mars2022 (password)`
 
 ## Transfering files with github
@@ -53,10 +52,6 @@ Generic:
 Specific:
 -https://colab.research.google.com/drive/1RsylzAtXrJbDWdYRYt_aUFyMfdyvIyKN#scrollTo=1NcFxRcFdJ_O
 
-## DATASET
-- https://universe.roboflow.com/tup/pvc-with-coupling
-
 ## Yolov5 link
 - https://github.com/ultralytics/yolov5
-
 
